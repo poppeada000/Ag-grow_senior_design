@@ -1876,3 +1876,15 @@ PATH=C:\Users\popad\.espressif\tools\xtensa-esp32-elf\esp-2019r2-8.2.0\xtensa-es
 
 !ENTRY org.eclipse.oomph.setup.ui 1 0 2021-03-02 10:56:54.869
 !MESSAGE Setup tasks were performed during startup.See 'C:\Users\popad\eclipse\cpp-2019-09\eclipse\configuration\org.eclipse.oomph.setup\setup.log' for details
+
+!ENTRY com.espressif.idf.core 1 0 2021-03-02 11:01:09.518
+!MESSAGE IDF path C:\Users\popad\esp\esp-idf-v4.0
+
+!ENTRY com.espressif.idf.core 1 0 2021-03-02 11:01:09.564
+!MESSAGE IDF path C:\Users\popad\esp\esp-idf-v4.0
+
+!ENTRY com.espressif.idf.core 1 0 2021-03-02 11:01:34.354
+!MESSAGE Source Template path:null
+
+!ENTRY org.eclipse.cdt.core 1 0 2021-03-02 11:01:34.668
+!MESSAGE Indexed 'ag_grow_reporting' (1 sources, 0 headers) in 0.242 sec: 12 declarations; 26 references; 7 unresolved inclusions; 0 syntax errors; 17 unresolved names (31%)

@@ -1,3 +1,6 @@
+config/ag_grow_reporting/cdt.launchMode=run
+config/ag_grow_reporting/cdt.toolChain.id=gcc-xtensa-C\:/Users/popad/.espressif/tools/xtensa-esp32-elf/esp-2019r2-8.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc.exe
+config/ag_grow_reporting/cdt.toolChain.type=org.eclipse.cdt.build.gcc
 config/ble_ex_gatt_server/cdt.launchMode=run
 config/ble_ex_gatt_server/cdt.toolChain.id=gcc-xtensa-C\:/Users/popad/.espressif/tools/xtensa-esp32-elf/esp-2019r2-8.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc.exe
 config/ble_ex_gatt_server/cdt.toolChain.type=org.eclipse.cdt.build.gcc
