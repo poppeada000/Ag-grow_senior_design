@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader/esp-idf/cmake_install.cmake")
+  include("C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

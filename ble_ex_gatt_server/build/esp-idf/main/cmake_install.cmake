@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/main
+# Install script for directory: C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

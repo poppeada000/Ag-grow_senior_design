@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "C:/Users/popad/OneDrive/Desktop/esp-idf/components/bootloader/subproject",
-    "build_dir":          "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader",
-    "config_file":        "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/sdkconfig",
+    "build_dir":          "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader",
+    "config_file":        "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",

@@ -1,4 +1,4 @@
-/* * Data converted from C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

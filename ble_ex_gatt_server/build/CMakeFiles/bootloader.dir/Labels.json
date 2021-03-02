@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/CMakeFiles/bootloader"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/CMakeFiles/bootloader.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		}
 	],
 	"target" : 

@@ -12,4 +12,5 @@ Subsystems:
 
 Open Source projects used:
 --Espressif IDF
+--MSP Graphics Library
 --Eclipse IDE

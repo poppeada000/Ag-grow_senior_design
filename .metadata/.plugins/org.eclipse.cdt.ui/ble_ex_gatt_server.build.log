@@ -1,1 +1,3 @@
-Failure running cmake: 
+cmake --build . -- -v
+[1/3] cmd.exe /C "cd /D C:\Users\popad\OneDrive\Desktop\Purdue\Spring2021\ECE49022\Ag-grow_senior_design\ble_ex_gatt_server\build\bootloader && C:\Users\popad\.espressif\tools\cmake\3.16.4\bin\cmake.exe --build ."
+ninja: no work to do.

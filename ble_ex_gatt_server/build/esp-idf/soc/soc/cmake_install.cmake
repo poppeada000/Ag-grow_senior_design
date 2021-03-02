@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/popad/eclipse-workspace/xD/ble_ex_gatt_server/build/esp-idf/soc/soc/esp32/cmake_install.cmake")
+  include("C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/esp-idf/soc/soc/esp32/cmake_install.cmake")
 
 endif()
 
