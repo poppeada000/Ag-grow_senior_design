@@ -1,1 +1,5 @@
-a7a8199ccee059e6664e0d05f30bd5b0b24f3917
+0000000000000000000000000000000000000000 0a3f63994941a1bbed8a6d528c0948e59cb8cfae Adam Popper <popadam123@gmail.com> 1614704329 -0600	commit (initial): Adding templates needed for project and preliminary design work
+0a3f63994941a1bbed8a6d528c0948e59cb8cfae db57e98b27e212e1211b85bb2ce883dba4537600 Adam Popper <popadam123@gmail.com> 1614704761 -0600	commit: Reporting code and main project interface
+db57e98b27e212e1211b85bb2ce883dba4537600 77ebfe39ec27f869b7196668da04a6007815b326 Adam Popper <popadam123@gmail.com> 1614705742 -0600	commit: addition ESP and Touch LCD Booster Pack documentation
+77ebfe39ec27f869b7196668da04a6007815b326 a7a8199ccee059e6664e0d05f30bd5b0b24f3917 Adam Popper <popadam123@gmail.com> 1614706106 -0600	commit: Adding MSP's Graphics library used to support spi display communication
+a7a8199ccee059e6664e0d05f30bd5b0b24f3917 f83f7e150a3adaa2181125951e6fecd2b3e89a6a Adam Popper <popadam123@gmail.com> 1614716565 -0600	commit: working fixes to build errors and post lab 3-2-21 updates

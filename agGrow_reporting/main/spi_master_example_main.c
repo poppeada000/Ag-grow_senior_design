@@ -16,6 +16,7 @@
 #include "driver/gpio.h"
 
 #include "pretty_effect.h"
+#include "gatts_server.h"
 
 /*
  This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
@@ -389,6 +390,7 @@ static void display_pretty_colors(spi_device_handle_t spi)
 void app_main()
 {
     esp_err_t ret;
+    gatts_server_init();
     spi_device_handle_t spi;
     spi_bus_config_t buscfg={
         .miso_io_num=PIN_NUM_MISO,
@@ -423,4 +425,5 @@ void app_main()
 
     //Go do nice stuff.
     display_pretty_colors(spi);
+
 }

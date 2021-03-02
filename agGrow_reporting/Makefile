@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := spi_master
-
+PROJECT_NAME := agGrow_reporting
+COMPONENT_ADD_INCLUDEDIRS := components/bt/include
 include $(IDF_PATH)/make/project.mk
 
