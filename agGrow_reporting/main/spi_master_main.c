@@ -387,10 +387,10 @@ static void display_pretty_colors(spi_device_handle_t spi)
     }
 }
 
-void app_main()
+void begin_displaying()
 {
     esp_err_t ret;
-    gatts_server_init();
+    //gatts_server_init();
     spi_device_handle_t spi;
     spi_bus_config_t buscfg={
         .miso_io_num=PIN_NUM_MISO,
@@ -427,3 +427,4 @@ void app_main()
     display_pretty_colors(spi);
 
 }
+
