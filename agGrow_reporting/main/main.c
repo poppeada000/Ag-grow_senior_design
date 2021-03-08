@@ -49,11 +49,70 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
 #define PIN_NUM_DC   21
 #define PIN_NUM_RST  18
 #define PIN_NUM_BCKL 5
+#define CENTER	-9003
+#define RIGHT	-9004
+#define BOTTOM	-9004
+#define LASTX	7000
+#define LASTY	8000
 
 //To speed up transfers, every SPI transfer sends a bunch of lines. This define specifies how many. More means more memory use,
 //but less overhead for setting up / finishing transfers. Make sure 240 is dividable by this.
 #define PARALLEL_LINES 16
+/*
+typedef struct {
+	uint8_t 	*font;
+	uint8_t 	x_size;
+	uint8_t 	y_size;
+	uint8_t	    offset;
+	uint16_t	numchars;
+    uint16_t	size;
+	uint8_t 	max_x_size;
+    uint8_t     bitmap;
+	color_t     color;
+} Font;
 
+Font cfont = {
+	.font = tft_DefaultFont,
+	.x_size = 0,
+	.y_size = 0x0B,
+	.offset = 0,
+	.numchars = 95,
+	.bitmap = 1,
+};
+
+typedef struct {
+	uint16_t        x1;
+	uint16_t        y1;
+	uint16_t        x2;
+	uint16_t        y2;
+} dispWin_t;
+
+typedef struct {
+      uint8_t charCode;
+      int adjYOffset;
+      int width;
+      int height;
+      int xOffset;
+      int xDelta;
+      uint16_t dataPtr;
+} propFont;
+
+dispWin_t dispWin = {
+  .x1 = 0,
+  .y1 = 0,
+  .x2 = DEFAULT_TFT_DISPLAY_WIDTH,
+  .y2 = DEFAULT_TFT_DISPLAY_HEIGHT,
+};
+
+uint16_t font_rotate = 0;
+//static int TFT_OFFSET = 0;
+int	TFT_X = 0;
+int	TFT_Y = 0;
+uint8_t	font_transparent = 0;
+uint8_t	text_wrap = 0;
+//static propFont	fontChar;
+uint8_t font_line_space = 0;
+*/
 /*
  The LCD needs a bunch of command/argument values to be initialized. They are stored in this struct.
 */
@@ -380,7 +439,7 @@ static void display_pretty_colors(spi_device_handle_t spi)
     int sending_line=-1;
     int calc_line=0;
 
-    while(1) {
+    for(int i = 0; i<1;i++) {
         frame++;
         for (int y=0; y<240; y+=PARALLEL_LINES) {
             //Calculate a line.
@@ -398,7 +457,251 @@ static void display_pretty_colors(spi_device_handle_t spi)
         }
     }
 }
+/*
+static int printProportionalChar(int x, int y) {
+	uint8_t ch = 0;
+	int i, j, char_width;
 
+	char_width = ((fontChar.width > fontChar.xDelta) ? fontChar.width : fontChar.xDelta);
+
+	if ((font_buffered_char) && (!font_transparent)) {
+		int len, bufPos;
+
+		// === buffer Glyph data for faster sending ===
+		len = char_width * cfont.y_size;
+		color_t *color_line = heap_caps_malloc(len*3, MALLOC_CAP_DMA);
+		if (color_line) {
+			// fill with background color
+			for (int n = 0; n < len; n++) {
+				color_line[n] = _bg;
+			}
+			// set character pixels to foreground color
+			uint8_t mask = 0x80;
+			for (j=0; j < fontChar.height; j++) {
+				for (i=0; i < fontChar.width; i++) {
+					if (((i + (j*fontChar.width)) % 8) == 0) {
+						mask = 0x80;
+						ch = cfont.font[fontChar.dataPtr++];
+					}
+					if ((ch & mask) != 0) {
+						// visible pixel
+						bufPos = ((j + fontChar.adjYOffset) * char_width) + (fontChar.xOffset + i);  // bufY + bufX
+						color_line[bufPos] = _fg;
+
+					}
+					mask >>= 1;
+				}
+			}
+			// send to display in one transaction
+			disp_select();
+			send_data(x, y, x+char_width-1, y+cfont.y_size-1, len, color_line);
+			disp_deselect();
+			free(color_line);
+
+			return char_width;
+		}
+	}
+
+}
+// non-rotated fixed width character
+//----------------------------------------------
+static void printChar(uint8_t c, int x, int y) {
+	uint8_t i, j, ch, fz, mask;
+	uint16_t k, temp, cx, cy, len;
+
+	// fz = bytes per char row
+	fz = cfont.x_size/8;
+	if (cfont.x_size % 8) fz++;
+
+	// get character position in buffer
+	temp = ((c-cfont.offset)*((fz)*cfont.y_size))+4;
+
+	if ((font_buffered_char) && (!font_transparent)) {
+		// === buffer Glyph data for faster sending ===
+		len = cfont.x_size * cfont.y_size;
+		color_t *color_line = heap_caps_malloc(len*3, MALLOC_CAP_DMA);
+		if (color_line) {
+			// fill with background color
+			for (int n = 0; n < len; n++) {
+				color_line[n] = _bg;
+			}
+			// set character pixels to foreground color
+			for (j=0; j<cfont.y_size; j++) {
+				for (k=0; k < fz; k++) {
+					ch = cfont.font[temp+k];
+					mask=0x80;
+					for (i=0; i<8; i++) {
+						if ((ch & mask) !=0) color_line[(j*cfont.x_size) + (i+(k*8))] = _fg;
+						mask >>= 1;
+					}
+				}
+				temp += (fz);
+			}
+			// send to display in one transaction
+			disp_select();
+			send_data(x, y, x+cfont.x_size-1, y+cfont.y_size-1, len, color_line);
+			disp_deselect();
+			free(color_line);
+
+			return;
+		}
+	}
+
+	if (!font_transparent) _fillRect(x, y, cfont.x_size, cfont.y_size, _bg);
+
+	disp_select();
+	for (j=0; j<cfont.y_size; j++) {
+		for (k=0; k < fz; k++) {
+			ch = cfont.font[temp+k];
+			mask=0x80;
+			for (i=0; i<8; i++) {
+				if ((ch & mask) !=0) {
+					cx = (uint16_t)(x+i+(k*8));
+					cy = (uint16_t)(y+j);
+					_drawPixel(cx, cy, _fg, 0);
+				}
+				mask >>= 1;
+			}
+		}
+		temp += (fz);
+	}
+	disp_deselect();
+}
+*/
+/*
+int TFT_getStringWidth(char* str)
+{
+    int strWidth = 0;
+
+	if (cfont.bitmap == 2) strWidth = ((_7seg_width()+2) * strlen(str)) - 2;	// 7-segment font
+	else if (cfont.x_size != 0) strWidth = strlen(str) * cfont.x_size;			// fixed width font
+	else {
+		// calculate the width of the string of proportional characters
+		char* tempStrptr = str;
+		while (*tempStrptr != 0) {
+			if (getCharPtr(*tempStrptr++)) {
+				strWidth += (((fontChar.width > fontChar.xDelta) ? fontChar.width : fontChar.xDelta) + 1);
+			}
+		}
+		strWidth--;
+	}
+	return strWidth;
+}
+*/
+/*
+void TFT_print(char *st, int x, int y) {
+	int stl, i, tmpw, tmph, fh;
+	uint8_t ch;
+
+	if (cfont.bitmap == 0) return; // wrong font selected
+
+	// ** Rotated strings cannot be aligned
+	if ((font_rotate != 0) && ((x <= CENTER) || (y <= CENTER))) return;
+
+	if ((x < LASTX) || (font_rotate == 0)) TFT_OFFSET = 0;
+
+	if ((x >= LASTX) && (x < LASTY)) x = TFT_X + (x-LASTX);
+	else if (x > CENTER) x += dispWin.x1;
+
+	if (y >= LASTY) y = TFT_Y + (y-LASTY);
+	else if (y > CENTER) y += dispWin.y1;
+
+	// ** Get number of characters in string to print
+	stl = strlen(st);
+
+	// ** Calculate CENTER, RIGHT or BOTTOM position
+	tmpw = TFT_getStringWidth(st);	// string width in pixels
+	fh = cfont.y_size;			// font height
+	if ((cfont.x_size != 0) && (cfont.bitmap == 2)) {
+		// 7-segment font
+		fh = (3 * (2 * cfont.y_size + 1)) + (2 * cfont.x_size);  // 7-seg character height
+	}
+
+	if (x == RIGHT) x = dispWin.x2 - tmpw + dispWin.x1;
+	else if (x == CENTER) x = (((dispWin.x2 - dispWin.x1 + 1) - tmpw) / 2) + dispWin.x1;
+
+	if (y == BOTTOM) y = dispWin.y2 - fh + dispWin.y1;
+	else if (y==CENTER) y = (((dispWin.y2 - dispWin.y1 + 1) - (fh/2)) / 2) + dispWin.y1;
+
+	if (x < dispWin.x1) x = dispWin.x1;
+	if (y < dispWin.y1) y = dispWin.y1;
+	if ((x > dispWin.x2) || (y > dispWin.y2)) return;
+
+	TFT_X = x;
+	TFT_Y = y;
+
+	// ** Adjust y position
+	tmph = cfont.y_size; // font height
+	// for non-proportional fonts, char width is the same for all chars
+	tmpw = cfont.x_size;
+	if (cfont.x_size != 0) {
+		if (cfont.bitmap == 2) {	// 7-segment font
+			tmpw = _7seg_width();	// character width
+			tmph = _7seg_height();	// character height
+		}
+	}
+	else TFT_OFFSET = 0;	// fixed font; offset not needed
+
+	if ((TFT_Y + tmph - 1) > dispWin.y2) return;
+
+	int offset = TFT_OFFSET;
+
+	for (i=0; i<stl; i++) {
+		ch = st[i]; // get string character
+
+		if (ch == 0x0D) { // === '\r', erase to eol ====
+			if ((!font_transparent) && (font_rotate==0)) _fillRect(TFT_X, TFT_Y,  dispWin.x2+1-TFT_X, tmph, _bg);
+		}
+
+		else if (ch == 0x0A) { // ==== '\n', new line ====
+			if (cfont.bitmap == 1) {
+				TFT_Y += tmph + font_line_space;
+				if (TFT_Y > (dispWin.y2-tmph)) break;
+				TFT_X = dispWin.x1;
+			}
+		}
+
+		else { // ==== other characters ====
+			if (cfont.x_size == 0) {
+				// for proportional font get character data to 'fontChar'
+				if (getCharPtr(ch)) tmpw = fontChar.xDelta;
+				else continue;
+			}
+
+			// check if character can be displayed in the current line
+			if ((TFT_X+tmpw) > (dispWin.x2)) {
+				if (text_wrap == 0) break;
+				TFT_Y += tmph + font_line_space;
+				if (TFT_Y > (dispWin.y2-tmph)) break;
+				TFT_X = dispWin.x1;
+			}
+
+			// Let's print the character
+			if (cfont.x_size == 0) {
+				// == proportional font
+				if (font_rotate == 0) TFT_X += printProportionalChar(TFT_X, TFT_Y) + 1;
+				else {
+					// rotated proportional font
+					offset += rotatePropChar(x, y, offset);
+					TFT_OFFSET = offset;
+				}
+			}
+			else {
+				if (cfont.bitmap == 1) {
+					// == fixed font
+					if ((ch < cfont.offset) || ((ch-cfont.offset) > cfont.numchars)) ch = cfont.offset;
+					if (font_rotate == 0) {
+						printChar(ch, TFT_X, TFT_Y);
+						TFT_X += tmpw;
+					}
+					//else rotateChar(ch, x, y, i);
+				}
+			}
+		}
+	}
+}
+
+*/
 void app_main(void)
 {
     esp_err_t ret;
@@ -413,6 +716,8 @@ void app_main(void)
 
 	mm_distance = vl53l0x_readRangeSingleMillimeters(v);
 	printf("Distance from LIDAR Sensor: %d mm\n", mm_distance);
+	uint8_t data[] = "Distance from LIDAR Sensor: mm\n";
+	setDataForRead(*data);
     //i2c_lux_init(1, cmd_code, lux_wr);
 	//i2c_humidity_temp_read(1, hum_temp_data);
 
@@ -451,6 +756,15 @@ void app_main(void)
 
     //Go do nice stuff.
     display_pretty_colors(spi);
+    //TFT_print("t",100,100);
+    while(true)
+    {
+    	mm_distance = vl53l0x_readRangeSingleMillimeters(v);
+    	printf("Distance from LIDAR Sensor: %d mm\n", mm_distance);
+    	vTaskDelay(1000 / portTICK_RATE_MS);
+    	uint8_t data[] = {mm_distance>>8, mm_distance|0xFF};
+    	setDataForRead(*data);
+    }
 
 }
 

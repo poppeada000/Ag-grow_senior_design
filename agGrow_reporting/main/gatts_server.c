@@ -65,9 +65,10 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
 
 #define PREPARE_BUF_MAX_SIZE 1024
+uint8_t datasendque[30];
 
 static uint8_t char1_str[] = "test";
-static uint8_t datasend[] = "Is it working yet?";
+uint8_t datasend[] = "Awaiting first report";
 static esp_gatt_char_prop_t a_property = 0;
 static esp_gatt_char_prop_t b_property = 0;
 
@@ -685,6 +686,20 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             }
         }
     } while (0);
+}
+
+void setDataForRead(uint8_t *data){
+
+    for (uint8_t i=0; i<sizeof(datasend); i++)
+    {
+    	if(i>=sizeof(data))
+    	{
+    		datasend[i] = 0x00;
+    	}
+    	else{
+    		datasend[i] = data[i];
+    	}
+    }
 }
 
 void gatts_server_init()
