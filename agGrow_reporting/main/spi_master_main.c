@@ -14,7 +14,7 @@
 #include "esp_system.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
-
+#include "spi_master_main.h"
 #include "pretty_effect.h"
 #include "gatts_server.h"
 

@@ -7,8 +7,6 @@
 #pragma once
 #include <stdint.h>
 #include "esp_err.h"
-#ifndef MAIN_SPI_MASTER_MAIN_H_
-#define MAIN_SPI_MASTER_MAIN_H_
 
 void begin_displaying();
 
@@ -57,4 +55,3 @@ void lcd_init(spi_device_handle_t spi);
 //static void display_pretty_colors(spi_device_handle_t spi);
 
 
-#endif /* MAIN_SPI_MASTER_MAIN_H_ */

@@ -3,5 +3,8 @@ idf_component_register(SRCS "decode_image.c"
                             "spi_master_main.c"
                             "gatts_server.c"
                             "main.c"
+                            "i2c_main.c"
+                            "vl53l0x.c"
+
                     INCLUDE_DIRS "."
                     EMBED_FILES image.jpg)

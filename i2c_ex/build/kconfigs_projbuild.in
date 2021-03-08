@@ -1,5 +1,0 @@
-source "C:/Users/popad/OneDrive/Desktop/esp-idf/components/app_update/Kconfig.projbuild"
-source "C:/Users/popad/OneDrive/Desktop/esp-idf/components/bootloader/Kconfig.projbuild"
-source "C:/Users/popad/OneDrive/Desktop/esp-idf/components/esptool_py/Kconfig.projbuild"
-source "C:/Users/popad/OneDrive/Desktop/esp-idf/components/partition_table/Kconfig.projbuild"
-source "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/i2c_ex/main/Kconfig.projbuild"

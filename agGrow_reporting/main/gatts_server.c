@@ -66,7 +66,8 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
 #define PREPARE_BUF_MAX_SIZE 1024
 
-static uint8_t char1_str[] = {0x11,0x22,0x33};
+static uint8_t char1_str[] = "test";
+static uint8_t datasend[] = "Is it working yet?";
 static esp_gatt_char_prop_t a_property = 0;
 static esp_gatt_char_prop_t b_property = 0;
 
@@ -94,7 +95,7 @@ static uint8_t raw_scan_rsp_data[] = {
 
 static uint8_t adv_service_uuid128[32] = {
     /* LSB <--------------------------------------------------------------------------------> MSB */
-    //first uuid, 16bit, [12],[13] is the value
+    //first uuid, 16bit, [12],[13] is the value//fb
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xEE, 0x00, 0x00, 0x00,
     //second uuid, 32bit, [12], [13], [14], [15] is the value
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
@@ -350,11 +351,18 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_gatt_rsp_t rsp;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = 4;
-        rsp.attr_value.value[0] = 0xde;
-        rsp.attr_value.value[1] = 0xed;
-        rsp.attr_value.value[2] = 0xbe;
-        rsp.attr_value.value[3] = 0xef;
+        rsp.attr_value.len = sizeof(datasend);
+        //rsp.attr_value.value = charsend;
+        for (uint8_t i=0; i<rsp.attr_value.len; i++)
+        {
+        	rsp.attr_value.value[i] = datasend[i];
+        }
+        /*rsp.attr_value.len = 5;
+        rsp.attr_value.value[0] = 0x74;
+        rsp.attr_value.value[1] = 0x65;
+        rsp.attr_value.value[2] = 0x73;
+        rsp.attr_value.value[3] = 0x74;
+        rsp.attr_value.value[4] = 0x0a;*/
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
         break;
