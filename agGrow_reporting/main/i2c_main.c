@@ -48,6 +48,9 @@
 #define ACK_VAL 0x0                             /*!< I2C ack value */
 #define NACK_VAL 0x1                            /*!< I2C nack value */
 
+
+
+
 SemaphoreHandle_t print_mux = NULL;
 
 // ***CUSTOM SENSOR FUNCTIONS***
@@ -202,8 +205,8 @@ void i2c_main_init()
 
 	//GPIO initialization
     print_mux = xSemaphoreCreateMutex();
-    ESP_ERROR_CHECK(i2c_master_init());
-
+    //ESP_ERROR_CHECK(i2c_master_init());
+    i2c_master_init();
 
     //ESP_ERROR_CHECK(gnss_init());
 

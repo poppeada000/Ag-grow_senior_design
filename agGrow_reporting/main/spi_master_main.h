@@ -7,6 +7,10 @@
 #pragma once
 #include <stdint.h>
 #include "esp_err.h"
+typedef uint8_t u8;
+typedef uint16_t u16;
+
+
 
 void begin_displaying();
 
@@ -27,7 +31,7 @@ void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd);
  * just waiting for the transaction to complete.
  */
 void lcd_data(spi_device_handle_t spi, const uint8_t *data, int len);
-
+//void display_pretty_colors(spi_device_handle_t spi);
 //This function is called (in irq context!) just before a transmission starts. It will
 //set the D/C line to the value indicated in the user field.
 void lcd_spi_pre_transfer_callback(spi_transaction_t *t);

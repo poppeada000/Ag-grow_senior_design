@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/popad/OneDrive/Desktop/esp-idf/components/soc
+# Install script for directory: C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/soc
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -30,12 +30,5 @@ endif()
 # Is this installation the result of a crosscompile?
 if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "TRUE")
-endif()
-
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for each subdirectory.
-  include("C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/esp-idf/soc/src/esp32/cmake_install.cmake")
-  include("C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/ble_ex_gatt_server/build/esp-idf/soc/soc/cmake_install.cmake")
-
 endif()
 

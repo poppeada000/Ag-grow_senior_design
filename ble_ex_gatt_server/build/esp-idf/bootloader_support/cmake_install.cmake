@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/popad/OneDrive/Desktop/esp-idf/components/bootloader_support
+# Install script for directory: C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader_support
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

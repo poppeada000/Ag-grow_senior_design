@@ -1,0 +1,20 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader/subproject",
+    "build_dir":          "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/AgGrowSensorsCode/i2c_Example/build/bootloader",
+    "config_file":        "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/Ag-grow_senior_design/AgGrowSensorsCode/i2c_Example/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.1.1",
+    "target":             "esp32",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/efuse/Kconfig;C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esp32/Kconfig;C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esp_common/Kconfig;C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/log/Kconfig;C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader/Kconfig.projbuild;C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esptool_py/Kconfig.projbuild;C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32", "esp_common", "esp_rom", "esptool_py", "log", "main", "micro-ecc", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader_support", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/efuse", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esp32", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esp_common", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esp_rom", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/esptool_py", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/log", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader/subproject/main", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/bootloader/subproject/components/micro-ecc", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/partition_table", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/soc", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/spi_flash", "C:/Users/popad/OneDrive/Desktop/Purdue/Spring2021/ECE49022/esp-idf-v4.1.1/components/xtensa", "" ]
+}

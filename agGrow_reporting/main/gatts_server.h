@@ -16,5 +16,11 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 */
+typedef struct{
+	uint16_t value;
+	uint16_t header;
+	uint16_t nextReady;
+}ReportData;
+
 void gatts_server_init();
-void setDataForRead(uint8_t data);
+void setDataForRead(ReportData* ptr_inp);

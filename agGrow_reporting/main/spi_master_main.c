@@ -29,7 +29,7 @@
  before the transaction is sent, the callback will set this line to the correct state.
 */
 
-#define PIN_NUM_MISO 25
+#define PIN_NUM_MISO 27
 #define PIN_NUM_MOSI 23
 #define PIN_NUM_CLK  19
 #define PIN_NUM_CS   22
