@@ -56,7 +56,7 @@ void app_main(void)
 
 static void lidar_timer_callback(void* arg)
 {
-    uint16_t distance;
+	uint16_t distance;
     distance = vl53l0x_readRangeSingleMillimeters(activeSensors.lidarOne);
     sendToRead.value = distance;
     printf("Distance from LIDAR Sensor: %d mm\n", distance);

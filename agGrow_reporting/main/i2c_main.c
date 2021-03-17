@@ -237,54 +237,5 @@ void i2c_main_init()
     //ESP_ERROR_CHECK(i2c_master_init());
     i2c_master_init();
 
-
     i2c_lux_init(1, cmd_code, lux_wr);
-
-    //ESP_ERROR_CHECK(gnss_init());
-    //gnss_init();
-    //Test Read Functions
-    /*
-    uint8_t *hum_temp_data = (uint8_t *)malloc(4*sizeof(uint8_t));
-    cmd_code[0] = 0x04;
-    uint8_t *lux_data = (uint8_t *)malloc(2*sizeof(uint8_t));
-    uint16_t mm_distance;
-     */
-
-    //while (true)
-    //{
-    	//i2c_humidity_temp_read(1, hum_temp_data);
-    	//i2c_lux_read(I2C_MASTER_NUM, cmd_code, lux_data);
-    	//Refresh time for lux sensor is 600ms with default settings
-        //vTaskDelay(600 / portTICK_RATE_MS);
-    	//mm_distance = vl53l0x_readRangeSingleMillimeters(v);
-        //mjd_neom8n_read(&neom8n_config, &neom8n_data);
-
-        //vTaskDelay(5000 / portTICK_RATE_MS);
-
-    	/*
-    	//Interpretation of data
-    	// Humidity: in first two bytes
-    	int hum_read = (hum_temp_data[0] << 8) + hum_temp_data[1];
-    	double humidity = (hum_read/16382.0) * 100.0;
-    	//printf("%d %d\n",hum_temp_data[0],hum_temp_data[1]);
-    	printf("Relative Humidity: %f\n", humidity);
-
-    	// Temperature: located in next two bytes, padded by two trailing bits
-    	int temp_read = (hum_temp_data[2] << 6) + (hum_temp_data[3] >> 2);
-    	double temp = 165*(temp_read/16382.0) - 40;
-    	//printf("%d %d\n",hum_temp_data[2],hum_temp_data[3]);
-    	printf("Ambient Temperature: %f degrees Celsius\n", temp);
-
-    	//Lux: value returned is a count, must be multiplied by resolution of lx/count for lux value
-    	//default settings use 0.0576 lx/ct
-    	//LSByte is lux_data[0] and MSByte is lux_data[1]
-    	double lux = (lux_data[0] + (lux_data[1] << 8)) * 0.0576;
-    	printf("Ambient Illuminance: %f lux\n", lux);
-    	*/
-    	//Lidar:
-    	//printf("Distance from LIDAR Sensor: %d mm\n", mm_distance);
-
-    	//GNSS: Latitude and Longitude
-    	//printf("GPS Location: Latitude %f°, Longitude %f°\n", neom8n_data.latitude, neom8n_data.longitude);
-    //}
 }
