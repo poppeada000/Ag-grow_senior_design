@@ -5,7 +5,7 @@
 
 // Component header file(s)
 #include "mjd.h"
-#include "includes/mjd_neom8n.h"
+#include "mjd_neom8n.h"
 
 // Extra includes
 #include <math.h>

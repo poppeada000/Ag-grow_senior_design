@@ -2,7 +2,8 @@ Senior Design Spring 2021
 Purdue University
 Team Number: 34
 Team Name: Solar Scouts
-Code Author: Adam Popper - poppeada000
+Author: Adam Popper - poppeada000
+Author: Bryan Holt
 
 Subsystems:
 - Reporting Systems

@@ -3,7 +3,7 @@
  */
 
 // Component header file
-#include "includes/mjd.h"
+#include "mjd.h"
 
 /**********
  * LOGGING

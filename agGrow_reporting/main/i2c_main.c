@@ -16,10 +16,14 @@
 #include "driver/i2c.h"
 #include "sdkconfig.h"
 //necessary external libraries for sensors
-#include "vl53l0x.h"
+#include "includes/vl53l0x.h"
 #include "includes/mjd.h"
 #include "includes/mjd_neom8n.h"
 #include "i2c_main.h"
+
+//Pins 22 & 23: GPS
+//Pins 25 & 26: I2C line
+
 
 #define _I2C_NUMBER(num) I2C_NUM_##num
 #define I2C_NUMBER(num) _I2C_NUMBER(num)
@@ -48,8 +52,9 @@
 #define ACK_VAL 0x0                             /*!< I2C ack value */
 #define NACK_VAL 0x1                            /*!< I2C nack value */
 
-
-
+static sensorValues sensorRead;
+static mjd_neom8n_config_t neom8n_config;
+static mjd_neom8n_data_t neom8n_data;
 
 SemaphoreHandle_t print_mux = NULL;
 
@@ -155,6 +160,8 @@ static esp_err_t i2c_master_init()
                               I2C_MASTER_TX_BUF_DISABLE, 0);
 }
 
+
+
 //VEML7700 initialization
 static esp_err_t i2c_lux_init(i2c_port_t i2c_num, uint8_t *cmd_code, uint8_t *lux_wr)
 {
@@ -175,41 +182,66 @@ static esp_err_t i2c_lux_init(i2c_port_t i2c_num, uint8_t *cmd_code, uint8_t *lu
     return ret;
 }
 
+void updateEnvSens(sensorValues* ptr_inp)
+{
+    i2c_humidity_temp_read(1, sensorRead.hum_temp_data);
+    i2c_lux_read(1,sensorRead.lux_cmd_code, sensorRead.lux_data);
+
+	// Humidity: in first two bytes
+    sensorRead.lux = (sensorRead.lux_data[0] + (sensorRead.lux_data[1] << 8)) * 0.0576;
+	sensorRead.humidity = ( (int) ((sensorRead.hum_temp_data[0] << 8) + sensorRead.hum_temp_data[1]) /16382.0) * 100.0;
+	sensorRead.temp = 165*( (int)(sensorRead.hum_temp_data[2] << 6) + (sensorRead.hum_temp_data[3] >> 2)  /16382.0) - 40;
+
+	sensorRead.latitude =  neom8n_data.latitude;
+	sensorRead.longitude = neom8n_data.longitude;
+
+	sensorValues *ptr_temp = &sensorRead;
+	ptr_inp->lux = ptr_temp->lux;
+	ptr_inp->humidity = ptr_temp->humidity;
+	ptr_inp->temp = ptr_temp->temp;
+	ptr_inp->latitude = ptr_temp->latitude;
+	ptr_inp->longitude = ptr_temp->longitude;
+}
+
 
 void i2c_main_init()
 {
 	// Startup delay to allow time for bus capacitance to charge
-    //vTaskDelay(1500 / portTICK_RATE_MS);
-    /*
+    vTaskDelay(1500 / portTICK_RATE_MS);
+
 	//variable initialization
 	uint8_t *cmd_code = (uint8_t *)malloc(1*sizeof(uint8_t));
 	uint8_t *lux_wr = (uint8_t *)malloc(2*sizeof(uint8_t));
 	lux_wr[0] = 0x00;
 	lux_wr[1] = 0x00;
 	cmd_code[0] = 0x00;
-	*/
-
+	sensorRead.hum_temp_data = (uint8_t *)malloc(4*sizeof(uint8_t));
+	sensorRead.lux_data = (uint8_t *)malloc(2*sizeof(uint8_t));
+	sensorRead.lux_cmd_code = 0x04;
     //GNSS initialization
 	//mjd_neom8n_config_t neom8n_config;
 	//mjd_neom8n_data_t neom8n_data;
-    //neom8n_config.uart_port = UART_NUM_1;
-    //neom8n_config.uart_rx_gpio_num = 17;
-    //neom8n_config.uart_tx_gpio_num = 16;
-    //neom8n_config.do_cold_start = false;
-    //mjd_log_wakeup_details();
-    //mjd_log_chip_info();
-    //mjd_log_time();
-    //mjd_log_memory_statistics();
-    //mjd_neom8n_init(&neom8n_config);
-    //vTaskDelay(5000 / portTICK_RATE_MS);
+	neom8n_config.uart_port = UART_NUM_1;
+    neom8n_config.uart_rx_gpio_num = 23;
+    neom8n_config.uart_tx_gpio_num = 22;
+    neom8n_config.do_cold_start = false;
+    mjd_log_wakeup_details();
+    mjd_log_chip_info();
+    mjd_log_time();
+    mjd_log_memory_statistics();
+    mjd_neom8n_init(&neom8n_config);
+    vTaskDelay(5000 / portTICK_RATE_MS);
 
 	//GPIO initialization
     print_mux = xSemaphoreCreateMutex();
     //ESP_ERROR_CHECK(i2c_master_init());
     i2c_master_init();
 
-    //ESP_ERROR_CHECK(gnss_init());
 
+    i2c_lux_init(1, cmd_code, lux_wr);
+
+    //ESP_ERROR_CHECK(gnss_init());
+    //gnss_init();
     //Test Read Functions
     /*
     uint8_t *hum_temp_data = (uint8_t *)malloc(4*sizeof(uint8_t));
