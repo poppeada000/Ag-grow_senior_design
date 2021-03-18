@@ -69,8 +69,8 @@ uint8_t datasendque[30];
 
 static uint8_t char1_str[] = "test";
 uint8_t datasend[] = "This is the data being sent";
-static ReportData readData;
-
+static ReportData readA;
+static ReportData readB;
 
 static esp_gatt_char_prop_t a_property = 0;
 static esp_gatt_char_prop_t b_property = 0;
@@ -357,7 +357,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_gatt_rsp_t rsp;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = 1;
+        rsp.attr_value.len = 2;
         //rsp.attr_value.value = charsend;
 /*        for (uint8_t i=0; i<rsp.attr_value.len; i++)
         {
@@ -368,10 +368,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         */
 //        /rsp.attr_value.len = 2;
 
-    	ReportData *ptr_temp = &readData;
+    	ReportData *ptr_temp = &readA;
 
-        rsp.attr_value.value[0] = ptr_temp->value;
-        //rsp.attr_value.value[1] = ptr_temp->value;
+        rsp.attr_value.value[0] = ptr_temp->msbValue;
+        rsp.attr_value.value[1] = ptr_temp->lsbValue;
         //rsp.attr_value.value[2] = ptr_temp->nextReady;
         /*rsp.attr_value.value[3] = 0x74;
         rsp.attr_value.value[4] = 0x0a;*/
@@ -543,11 +543,13 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_gatt_rsp_t rsp;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = 4;
-        rsp.attr_value.value[0] = 0xde;
-        rsp.attr_value.value[1] = 0xed;
-        rsp.attr_value.value[2] = 0xbe;
-        rsp.attr_value.value[3] = 0xef;
+        rsp.attr_value.len = 5;
+    	ReportData *ptr_temp = &readB;
+        rsp.attr_value.value[0] = ptr_temp->msbValue;
+        rsp.attr_value.value[1] = ptr_temp->bValue;
+        rsp.attr_value.value[2] = ptr_temp->lsbValue;
+        rsp.attr_value.value[3] = ptr_temp->longValue;
+        rsp.attr_value.value[4] = ptr_temp->latValue;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
         break;
@@ -700,21 +702,41 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     } while (0);
 }
 
-void setDataForRead(ReportData* ptr_inp){
+void setDataForRead(ReportData* ptr_inp, uint8_t channel){
+	if(channel == 0x1)
+	{
+		ReportData *ptr_temp = &readA;
+		ptr_temp->msbValue = ptr_inp->msbValue;
+		ptr_temp->lsbValue = ptr_inp->lsbValue;
+	}else
+	{
+		ReportData *ptr_temp = &readB;
+		ptr_temp->msbValue = ptr_inp->msbValue;
+		ptr_temp->lsbValue = ptr_inp->lsbValue;
+		ptr_temp->bValue = ptr_inp->bValue;
+		ptr_temp->longValue = ptr_inp->longValue;
+		ptr_temp->latValue = ptr_inp->latValue;
+	}
 
-	ReportData *ptr_temp = &readData;
-	ptr_temp->header = ptr_inp->header;
-	ptr_temp->value = ptr_inp->value;
-	ptr_temp->nextReady = ptr_inp->nextReady;
 }
 
 void gatts_server_init()
 {
     esp_err_t ret;
-    ReportData *reading = &readData;
-    reading->value = 0x00;
-    reading->header = 0x00;
-    reading->nextReady = 0x1;
+    ReportData *readingA = &readA;
+    readingA->msbValue = 0x01;
+    readingA->header = 0x02;
+    readingA->bValue = 0x03;
+    readingA->lsbValue = 0x04;
+
+    ReportData *readingB = &readB;
+    readingB->msbValue = 0x01;
+    readingB->header = 0x02;
+    readingB->bValue = 0x03;
+    readingB->lsbValue = 0x04;
+    readingB->longValue = 0x05;
+    readingB->latValue = 0x06;
+
     // Initialize NVS.
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {

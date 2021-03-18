@@ -19,8 +19,6 @@ uint16_t **pixels;
 static inline uint16_t get_bgnd_pixel(int x, int y)
 {
     //Image has an 8x8 pixel margin, so we can also resolve e.g. [-3, 243]
-    x+=8;
-    y+=8;
     return pixels[y][x];
 }
 

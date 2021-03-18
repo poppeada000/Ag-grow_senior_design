@@ -87,9 +87,11 @@
 //
 //*****************************************************************************
 //#include <msp430.h>
-#include "grlib.h"
+//#include "includes/grlib.h"
 #include "lcd_driver.h"
+#include "includes/decode_image.h"
 #include "driver/gpio.h"
+#include "esp_timer.h"
 
 //*****************************************************************************
 //
@@ -110,6 +112,9 @@ uint8_t Template_Memory[(LCD_X_SIZE * LCD_Y_SIZE * BPP + 7) / 8];
 #define PIN_NUM_RST  18
 #define PIN_NUM_BCKL 5
 typedef uint16_t ul16;
+uint16_t **pixels;
+
+void Template_DrawPic();
 //*****************************************************************************
 //
 // Suggested functions to help facilitate writing the required functions below
@@ -126,8 +131,7 @@ typedef uint16_t ul16;
  #define PIN_NUM_BCKL 5
  */
 // Writes data to the LCD controller
-static void
-WriteData(uint16_t usData)
+static void WriteData(uint16_t usData)
 {
     /* Write data to the LCD controller. For instance this can be bit banged
        with 6800 or 8080 protocol or this could be the SPI routine for a SPI LCD */
@@ -136,42 +140,42 @@ WriteData(uint16_t usData)
     vTaskDelay(10 / portTICK_RATE_MS);
     gpio_set_level(PIN_NUM_RST, 1);
 
-    gpio_set_level(PIN_NUM_SDI, (usData&0x8000)>>15);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x8000)>>15);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x4000)>>14);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x4000)>>14);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x2000)>>13);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x2000)>>13);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x1000)>>12);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x1000)>>12);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0800)>>11);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0800)>>11);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0400)>>10);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0400)>>10);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0200)>>9);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0200)>>9);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0100)>>8);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0100)>>8);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
 	vTaskDelay(10 / portTICK_RATE_MS);
@@ -179,50 +183,49 @@ WriteData(uint16_t usData)
 
 	gpio_set_level(PIN_NUM_SCS, 0);
     vTaskDelay(10 / portTICK_RATE_MS);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0080)>>7);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0080)>>7);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0040)>>6);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0040)>>6);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0020)>>5);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0020)>>5);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0010)>>4);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0010)>>4);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0008)>>3);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0008)>>3);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0004)>>2);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0004)>>2);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0002)>>1);
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0002)>>1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 0);
-    gpio_set_level(PIN_NUM_SDI, (usData&0x0001));
+    gpio_set_level(PIN_NUM_SDI, (usData & 0x0001));
     vTaskDelay(5 / portTICK_RATE_MS);
 	gpio_set_level(PIN_NUM_SCS, 1);
 	vTaskDelay(10 / portTICK_RATE_MS);
 }
 
 // Writes a command to the LCD controller
-static void
-WriteCommand(uint8_t ucCommand)
+static void WriteCommand(uint8_t ucCommand)
 {
     /* This function is typically very similar (sometimes the same) as WriteData()
        The difference is that this is for the LCD to interpret commands instead of pixel
@@ -275,8 +278,7 @@ WriteCommand(uint8_t ucCommand)
 }
 
 // Sets the pixel address of the LCD driver
-void SetAddress(int16_t lX,
-                int16_t lY)
+void SetAddress(int16_t lX, int16_t lY)
 {
     /* This function typically writes commands (using WriteCommand()) to the
         LCD to tell it where to move the cursor for the next pixel to be drawn. */
@@ -290,8 +292,7 @@ void SetAddress(int16_t lX,
 // This function configures the GPIO pins used to control the LCD display
 // when the basic GPIO interface is in use. On exit, the LCD controller
 // has been reset and is ready to receive command and data writes.
-static void
-InitGPIOLCDInterface(void)
+static void InitGPIOLCDInterface(void)
 {
     /* Initialize the hardware to configure the ports properly for communication */
     gpio_set_direction(PIN_NUM_SDI, GPIO_MODE_OUTPUT);
@@ -309,8 +310,7 @@ InitGPIOLCDInterface(void)
 
 // Initialize DisplayBuffer.
 // This function initializes the display buffer and discards any cached data.
-static void
-InitLCDDisplayBuffer(uint32_t ulValue)
+static void InitLCDDisplayBuffer(uint32_t ulValue)
 {
     uint16_t i = 0,j = 0;
     for(i = 0; i < LCD_Y_SIZE; i++)
@@ -326,8 +326,7 @@ InitLCDDisplayBuffer(uint32_t ulValue)
 // This function initializes the LCD controller
 //
 // TemplateDisplayFix
-void
-Template_DriverInit(void)
+void Template_DriverInit(void)
 {
     uint32_t backGroudValue = 0x0;
     /*Initialize the LCD controller.
@@ -357,9 +356,9 @@ Template_DriverInit(void)
     WriteCommand(0x0002);
     WriteData(0x0000);
 
-
+    decode_image(&pixels);
     // Enable LCD
-
+    Template_DrawPic();
     // Init Backlight
 
     // Clear Screen
@@ -389,8 +388,7 @@ Template_DriverInit(void)
 //
 //*****************************************************************************
 // TemplateDisplayFix
-static void
-Template_DriverPixelDraw(void *pvDisplayData,
+static void Template_DriverPixelDraw(void *pvDisplayData,
                          int16_t lX,
                          int16_t lY,
                          uint16_t ulValue)
@@ -433,8 +431,7 @@ Template_DriverPixelDraw(void *pvDisplayData,
 //! \return None.
 //
 //*****************************************************************************
-static void
-Template_DriverPixelDrawMultiple(void *pvDisplayData,
+static void Template_DriverPixelDrawMultiple(void *pvDisplayData,
                                  int16_t lX,
                                  int16_t lY,
                                  int16_t lX0,
@@ -589,8 +586,7 @@ Template_DriverPixelDrawMultiple(void *pvDisplayData,
 //! \return None.
 //
 //*****************************************************************************
-static void
-Template_DriverLineDrawH(void *pvDisplayData,
+static void Template_DriverLineDrawH(void *pvDisplayData,
                          int16_t lX1,
                          int16_t lX2,
                          int16_t lY,
@@ -625,8 +621,7 @@ Template_DriverLineDrawH(void *pvDisplayData,
 //! \return None.
 //
 //*****************************************************************************
-static void
-Template_DriverLineDrawV(void *pvDisplayData,
+static void Template_DriverLineDrawV(void *pvDisplayData,
                          int16_t lX,
                          int16_t lY1,
                          int16_t lY2,
@@ -656,20 +651,19 @@ Template_DriverLineDrawV(void *pvDisplayData,
 //! \return None.
 //
 //*****************************************************************************
-static void
-Template_DriverRectFill(void *pvDisplayData,
-                        const Graphics_Rectangle *pRect,
+static void Template_DriverRectFill(void *pvDisplayData,
                         uint16_t ulValue)
 {
-    int16_t x0 = pRect->sXMin;
-    int16_t x1 = pRect->sXMax;
-    int16_t y0 = pRect->sYMin;
-    int16_t y1 = pRect->sYMax;
+//const Graphics_Rectangle *pRect,
+	//int16_t x0 = pRect->sXMin;
+    //int16_t x1 = pRect->sXMax;
+    //int16_t y0 = pRect->sYMin;
+    //int16_t y1 = pRect->sYMax;
 
-    while(y0++ <= y1)
-    {
-        Template_DriverLineDrawH(pvDisplayData, x0, x1, y0, ulValue);
-    }
+    //while(y0++ <= y1)
+    //{
+        //Template_DriverLineDrawH(pvDisplayData, x0, x1, y0, ulValue);
+    //}
 }
 
 //*****************************************************************************
@@ -689,8 +683,7 @@ Template_DriverRectFill(void *pvDisplayData,
 //! \return Returns the display-driver specific color.
 //
 //*****************************************************************************
-static uint32_t
-Template_DriverColorTranslate(void *pvDisplayData,
+static uint32_t Template_DriverColorTranslate(void *pvDisplayData,
                               uint32_t ulValue)
 {
     /* The DPYCOLORTRANSLATE macro should be defined in TemplateDriver.h */
@@ -715,11 +708,10 @@ Template_DriverColorTranslate(void *pvDisplayData,
 //! \return None.
 //
 //*****************************************************************************
-static void
-Template_DriverFlush(void *pvDisplayData)
+static void Template_DriverFlush(void *pvDisplayData)
 {
     // Flush Buffer here. This function is not needed if a buffer is not used,
-    // or if the buffer is always updated with the screen writes.
+    // or if the buffer is always updated wit h the screen writes.
     int16_t i = 0,j = 0;
     for(i = 0; i < LCD_Y_SIZE; i++)
     {
@@ -744,8 +736,7 @@ Template_DriverFlush(void *pvDisplayData)
 //! \return None.
 //
 //*****************************************************************************
-static void
-Template_DriverClearScreen(void *pvDisplayData,
+static void Template_DriverClearScreen(void *pvDisplayData,
                            uint16_t ulValue)
 {
     // This fills the entire display to clear it
@@ -760,7 +751,23 @@ Template_DriverClearScreen(void *pvDisplayData,
 //===========================================================================
 // Draw a picture with upper left corner at (x0,y0).
 //===========================================================================
-
+void Template_DrawPic()
+{
+	int16_t x = 0;
+	int16_t y = 0;
+	//uint16_t ulValue = pixels[y][x];
+	// This fills the entire display to clear it
+    // Some LCD drivers support a simple command to clear the display
+    int16_t y0 = 0;
+    while(y++ <= (LCD_Y_SIZE - 1))
+    {
+        while(x++ <= (LCD_Y_SIZE - 1))
+        {
+            SetAddress(MAPPED_X(x, y), MAPPED_Y(x, y));
+            WriteData(DPYCOLORTRANSLATE(pixels[y][x]));
+        }
+    }
+}
 
 
 
@@ -769,6 +776,7 @@ Template_DriverClearScreen(void *pvDisplayData,
 //! The display structure that describes the driver for the blank template.
 //
 //*****************************************************************************
+/*
 const Graphics_Display g_sTemplate_Driver =
 {
     sizeof(tDisplay),
@@ -789,7 +797,7 @@ const Graphics_Display g_sTemplate_Driver =
     Template_DriverFlush,
     Template_DriverClearScreen
 };
-
+*/
 //*****************************************************************************
 //
 // Close the Doxygen group.

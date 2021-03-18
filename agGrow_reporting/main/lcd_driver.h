@@ -53,7 +53,10 @@
 // Include Files
 //
 //*****************************************************************************
-#include "grlib.h"
+//#include "grlib.h"
+#include <stdint.h>
+#include "esp_err.h"
+
 /*Put any necessary include files here*/
 
 //*****************************************************************************
@@ -63,15 +66,15 @@
 //*****************************************************************************
 // Number of pixels on LCD X-axis
 // TemplateDisplayFix
-#define LCD_X_SIZE      1
+#define LCD_X_SIZE      320
 
 // Number of pixels on LCD Y-axis
 // TemplateDisplayFix
-#define LCD_Y_SIZE      1
+#define LCD_Y_SIZE      240
 
 // Number of bits required to draw one pixel on the LCD screen
 // TemplateDisplayFix
-#define BPP     1
+#define BPP     16
 
 // Define LCD Screen Orientation Here
 #define LANDSCAPE
@@ -179,18 +182,19 @@
 //
 // TemplateDisplayFix
 
-#define DPYCOLORTRANSLATE(c)    ((((c) & 0x00f80000) >> 8) |               \
-                                 (((c) & 0x0000fc00) >> 5) |               \
-                                 (((c) & 0x000000f8) >> 3))
+#define DPYCOLORTRANSLATE(c)    ((((c) & 0x00fc0000) >> 8) |               \
+                                 (((c) & 0x0000f800) >> 5) |               \
+                                 (((c) & 0x000000fc) >> 3))
 
 //*****************************************************************************
 //
 // Prototypes for the globals exported by this driver.
 //
 //*****************************************************************************
-extern void Template_DriverInit(void);
-extern const Graphics_Display g_sTemplate_Driver;
-extern uint8_t Template_Memory[];
-
-
+void Template_DriverInit(void);
+//extern const Graphics_Display g_sTemplate_Driver;
+uint8_t Template_Memory[];
+//static void WriteCommand(uint8_t ucCommand);
+//static void WriteData(uint16_t usData);
+void SetAddress(int16_t lX, int16_t lY);
 #endif /* MAIN_LCD_DRIVER_H_ */

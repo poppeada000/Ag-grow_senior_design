@@ -1,7 +1,5 @@
 idf_component_register(SRCS "includes/decode_image.c"
-                            "includes/pretty_effect.c"
                             "gatts_server.c"
-                            "includes/spi_master_main.c"
                             "main.c"
                             "i2c_main.c"
                             "includes/vl53l0x.c"
