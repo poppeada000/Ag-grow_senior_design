@@ -33,6 +33,11 @@ typedef struct
     u16  setycmd;
 } lcd_dev_t;
 
+typedef struct
+{
+	spi_device_handle_t spi_bus_call;
+} spi_bus;
+
 // The LCD device.
 // This will be initialized by LCD_direction() so that the
 // width and height will be appropriate for the rotation.
@@ -143,7 +148,7 @@ typedef const struct {
     unsigned char  pixel_data[0]; // variable length array
 } Picture;
 
-void LCD_DrawPicture(spi_device_handle_t spi, u16 x0, u16 y0, const Picture *pic);
+void Main_menu();
 
 
 #endif /* MAIN_INCLUDES_LCD_SSD_DRIVER_H_ */

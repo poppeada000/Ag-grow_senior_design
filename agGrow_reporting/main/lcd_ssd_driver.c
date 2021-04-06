@@ -45,6 +45,7 @@ typedef enum {
 } type_lcd_t;
 lcd_dev_t lcddev;
 extern const Picture *image;
+spi_bus spi_bus_caller;
 // A 12x6 font
 const unsigned char asc2_1206[95][12]={
 {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},/*" ",0*/
@@ -445,21 +446,15 @@ void LCD_Clear(spi_device_handle_t spi, u16 Color)
 //===========================================================================
 void LCD_SetWindow(spi_device_handle_t spi, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd)
 {
-
-
     LCD_WR_REG(spi, SSD2119_H_RAM_START_REG);
     LCD_WR_DATA(spi, (uint8_t)(xStart>>8));
     LCD_WR_DATA(spi, (uint8_t)(0x00FF & xStart));
     LCD_WR_REG(spi, SSD2119_H_RAM_END_REG);
     LCD_WR_DATA(spi, (uint8_t)(xEnd>>8));
     LCD_WR_DATA(spi, (uint8_t)(0x00FF & xEnd));
-
     LCD_WR_REG(spi, SSD2119_V_RAM_POS_REG);
     LCD_WR_DATA(spi, (uint8_t)(0xFF & yEnd));
     LCD_WR_DATA(spi, (uint8_t)(0xFF & yStart));
-
-
-
 }
 
 //===========================================================================
@@ -467,9 +462,6 @@ void LCD_SetWindow(spi_device_handle_t spi, uint16_t xStart, uint16_t yStart, ui
 //===========================================================================
 void LCD_DrawPoint(spi_device_handle_t spi, u16 x, u16 y, u16 c)
 {
-	//uint16_t x = MAPPED_X(x1, y1);
-	//uint16_t y = MAPPED_X(x1, y1);
-	//LCD_SetWindow(spi, x, y, x, y);
     LCD_WR_REG(spi, SSD2119_X_RAM_ADDR_REG);
     LCD_WR_DATA(spi, (uint8_t)(x>>8));
     LCD_WR_DATA(spi, (uint8_t)(0xFF&x));
@@ -481,7 +473,6 @@ void LCD_DrawPoint(spi_device_handle_t spi, u16 x, u16 y, u16 c)
     LCD_WR_REG(spi, SSD2119_RAM_DATA_REG);
     LCD_WR_DATA(spi, (uint8_t)(c>>8));
     LCD_WR_DATA(spi, (uint8_t)(0xFF&c));
-    //LCD_WriteData16(spi, c);
 }
 
 //===========================================================================
@@ -492,7 +483,6 @@ void LCD_DrawLine(spi_device_handle_t spi, u16 x1, u16 y1, u16 x2, u16 y2, u16 c
     u16 t;
     int xerr=0,yerr=0,delta_x,delta_y,distance;
     int incx,incy,uRow,uCol;
-
     delta_x=x2-x1;
     delta_y=y2-y1;
     uRow=x1;
@@ -789,19 +779,12 @@ void LCD_DrawString(spi_device_handle_t spi, u16 x,u16 y, u16 fc, u16 bg, const 
 // Draw a picture with upper left corner at (x0,y0).
 //===========================================================================
 
-void LCD_DrawPicture(spi_device_handle_t spi, u16 x0, u16 y0, const Picture *pic)
+void Main_menu()
 {
-    u16 x1 = x0 + pic->width-1;
-    u16 y1 = y0 + pic->height-1;
+
+    const Picture *pic = (const Picture *)&image;
     // No error handling.  Just loop forever if out-of-bounds.
-/*    while (x0 >= lcddev.width)
-        ;
-    while (x1 >= lcddev.width)
-        ;
-    while (y0 >= lcddev.height)
-        ;
-    while (y1 >= lcddev.height)
-        ;*/
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
     lcd_cmd(spi, SSD2119_V_RAM_POS_REG);
     LCD_WR_DATA(spi, 0xEF);
     LCD_WR_DATA(spi, (0x00));
@@ -833,9 +816,6 @@ void LCD_DrawPicture(spi_device_handle_t spi, u16 x0, u16 y0, const Picture *pic
 //Initialize the display
 void lcd_init(spi_device_handle_t spi)
 {
-    int cmd=0;
-    const lcd_init_cmd_t* lcd_init_cmds;
-
     lcddev.setxcmd = SSD2119_X_RAM_ADDR_REG;
     lcddev.setycmd = SSD2119_Y_RAM_ADDR_REG;
     lcddev.wramcmd = SSD2119_RAM_DATA_REG;
@@ -853,20 +833,12 @@ void lcd_init(spi_device_handle_t spi)
     gpio_set_level(PIN_NUM_RST, 1);
     vTaskDelay(100 / portTICK_RATE_MS);
 
-    //detect LCD type
-
-    int lcd_detected_type = 0;
-
     printf("LCD SSD2119 initialization.\n");
-    //lcd_init_cmds = ssd_init_cmds;
 
-//    lcd_cmd(spi_device_handle_t spi, const uint8_t cmd);
-//    lcd_data(spi_device_handle_t spi, const uint8_t *data, int len);
     gpio_set_level(PIN_NUM_BCKL, 1);
     lcd_cmd(spi, SSD2119_SLEEP_MODE_1_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x01);
-    //vTaskDelay(30 / portTICK_RATE_MS);
 
     lcd_cmd(spi, SSD2119_PWR_CTRL_5_REG);
     LCD_WR_DATA(spi, 0x00);
@@ -908,7 +880,6 @@ void lcd_init(spi_device_handle_t spi)
     lcd_cmd(spi, SSD2119_PWR_CTRL_2_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x05);
-
 
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_1_REG);
     LCD_WR_DATA(spi, 0x00);
@@ -995,7 +966,6 @@ void lcd_init(spi_device_handle_t spi)
     }
     */
     printf("LCD SSD2119 initialization Complete.\n");
-
 /*
  *
     //Send all the commands
@@ -1025,27 +995,6 @@ void lcd_init(spi_device_handle_t spi)
     printf("LCD SSD2119 initialization Complete.\n");
 */
 }
-
-static void bckl_timer_callback(void* arg)
-{
-	gpio_set_level(PIN_NUM_BCKL, 1);
-	vTaskDelay(10 / portTICK_RATE_MS);
-	gpio_set_level(PIN_NUM_BCKL, 0);
-
-}
-
-
-/*
-#define PIN_NUM_MISO 27
-#define PIN_NUM_SDI 16
-#define PIN_NUM_SCL  19
-#define PIN_NUM_SCS   17
-#define PIN_NUM_SDC   21
-#define PIN_NUM_RST  18
-#define PIN_NUM_BCKL 5
- */
-
-
 void begin_displaying()
 {
     esp_err_t ret;
@@ -1069,12 +1018,6 @@ void begin_displaying()
         .queue_size=9,                          //We want to be able to queue 7 transactions at a time
         .pre_cb=lcd_spi_pre_transfer_callback,  //Specify pre-transfer callback to handle D/C line
     };
-
-    lcddev.setxcmd=0x4E;
-    lcddev.setycmd=0x4F;
-    lcddev.wramcmd=0x22;
-    lcddev.height = LCD_H;
-    lcddev.width = LCD_W;
     //Initialize the SPI bus
     ret=spi_bus_initialize(HSPI_HOST, &buscfg, 1);
     ESP_ERROR_CHECK(ret);
@@ -1083,17 +1026,9 @@ void begin_displaying()
     ESP_ERROR_CHECK(ret);
     //Initialize the LCD
     lcd_init(spi);
-    //ESP_ERROR_CHECK(esp_timer_start_periodic(bckl_timer, 10000));
-
     //LCD_DrawChar(spi, 50, 50, BLUE, RED, 'A', 16, 1);
-    //LCD_DrawPoint(spi, 10, 10, BLUE);
-    //LCD_DrawPoint(spi, 11, 11, BLUE);
-    //LCD_DrawPoint(spi, 12, 12, BLUE);
-    //LCD_DrawPoint(spi, 13, 13, RED);
-    //LCD_DrawPoint(spi, 14, 14, RED);
-
-    //LCD_DrawLine(spi, 180, 180, 200, 200,RED);
-    LCD_DrawPicture(spi, 0, 0, (const Picture *)&image);
+    spi_bus_caller.spi_bus_call = spi;
+    Main_menu();
     LCD_DrawString(spi, 50,112, BLACK, GREEN, "Adam", 12, 1);
 }
 

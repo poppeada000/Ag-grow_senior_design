@@ -43,7 +43,6 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_timer_create(&envSensors_timer_args, &envSensors_timer));
     //Timers setup complete -- Not yet running
 
-    //Template_DriverInit();
     begin_displaying();
 
     //Ready the Gatt Server for read event
@@ -70,7 +69,6 @@ static void lidar_timer_callback(void* arg)
     ptr_temp->lsbValue = (distance & 0x00FF);
     setDataForRead(&sendA, 0x01);
     printf("Distance from LIDAR Sensor: %d mm\n", distance);
-
 }
 
 static void envSensors_timer_callback(void* arg)
