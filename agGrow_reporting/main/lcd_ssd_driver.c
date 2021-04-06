@@ -22,9 +22,9 @@
 //#include "includes/main_page.c"
 
 #define PIN_NUM_MISO 27
-#define PIN_NUM_SDI 23//16
+#define PIN_NUM_SDI 16//23
 #define PIN_NUM_SCL  19
-#define PIN_NUM_SCS   22//17
+#define PIN_NUM_SCS   17//22
 #define PIN_NUM_SDC   21
 #define PIN_NUM_RST  18
 #define PIN_NUM_BCKL 5
@@ -1060,9 +1060,9 @@ void begin_displaying()
     };
     spi_device_interface_config_t devcfg={
 #ifdef CONFIG_LCD_OVERCLOCK
-        .clock_speed_hz=16*1000*1000,           //Clock out at 26 MHz
+        .clock_speed_hz=26*1000*1000,           //Clock out at 26 MHz
 #else
-        .clock_speed_hz=16*1000*1000,           //Clock out at 10 MHz
+        .clock_speed_hz=26*1000*1000,           //Clock out at 10 MHz
 #endif
         .mode=0,                                //SPI mode 0
         .spics_io_num=PIN_NUM_SCS,               //CS pin
