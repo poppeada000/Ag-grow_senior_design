@@ -108,6 +108,7 @@ void Hitachi138x110_HD66753_initDisplay(void)
 //! \return None.
 //
 //*****************************************************************************
+
 void Hitachi138x110_HD66753_enableDisplay(void)
 {
     // R00 start oscillation

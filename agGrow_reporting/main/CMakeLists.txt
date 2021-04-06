@@ -1,5 +1,5 @@
-idf_component_register(SRCS "includes/decode_image.c"
-                            "gatts_server.c"
+idf_component_register(SRCS "gatts_server.c"
+                            "lcd_ssd_driver.c"
                             "main.c"
                             "i2c_main.c"
                             "includes/vl53l0x.c"
@@ -9,5 +9,5 @@ idf_component_register(SRCS "includes/decode_image.c"
                             "includes/mjd.c"
                             "includes/minmea.h"
                             "includes/minmea.c"
-                    INCLUDE_DIRS "."
-                    EMBED_FILES image.jpg)
+                            "includes/main_page.c"
+                    INCLUDE_DIRS ".")

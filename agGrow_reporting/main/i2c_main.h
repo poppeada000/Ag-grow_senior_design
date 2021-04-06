@@ -13,7 +13,7 @@
 typedef struct{
 	vl53l0x_t *lidarOne;
 	uint8_t *hum_temp_data;
-	uint8_t *lux_cmd_code;
+	uint8_t lux_cmd_code;
 	uint8_t *lux_data;
 	double lux;
 	double humidity;

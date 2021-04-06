@@ -123,7 +123,7 @@ static esp_err_t i2c_lux_read(i2c_port_t i2c_num, uint8_t *cmd_code, uint8_t *lu
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 	i2c_master_start(cmd);
 	i2c_master_write_byte(cmd, (slave_address << 1) | WRITE_BIT, ACK_CHECK_EN);
-	i2c_master_write_byte(cmd, cmd_code[0], ACK_CHECK_EN);
+	i2c_master_write_byte(cmd, sensorRead.lux_cmd_code, ACK_CHECK_EN);
 	//i2c_master_stop(cmd);
     //esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
     //i2c_cmd_link_delete(cmd);
@@ -182,18 +182,26 @@ static esp_err_t i2c_lux_init(i2c_port_t i2c_num, uint8_t *cmd_code, uint8_t *lu
     return ret;
 }
 
-void updateEnvSens(sensorValues* ptr_inp)
+void updateEnvSens(sensorValues *ptr_inp)
 {
+	printf("3 second TIMER CALL in i2C\n");
     i2c_humidity_temp_read(1, sensorRead.hum_temp_data);
-    i2c_lux_read(1,sensorRead.lux_cmd_code, sensorRead.lux_data);
+    printf("3 second TIMER CALL in i2C lux\n");
+    i2c_lux_read(1, sensorRead.lux_cmd_code, sensorRead.lux_data);
+    printf("3 second TIMER CALL in i2C lux and temp done\n");
 
-	// Humidity: in first two bytes
+    // Humidity: in first two bytes
     sensorRead.lux = (sensorRead.lux_data[0] + (sensorRead.lux_data[1] << 8)) * 0.0576;
 	sensorRead.humidity = ( (int) ((sensorRead.hum_temp_data[0] << 8) + sensorRead.hum_temp_data[1]) /16382.0) * 100.0;
-	sensorRead.temp = 165*( (int)(sensorRead.hum_temp_data[2] << 6) + (sensorRead.hum_temp_data[3] >> 2)  /16382.0) - 40;
+	sensorRead.temp = 165*( (int)((sensorRead.hum_temp_data[2] << 6) + (sensorRead.hum_temp_data[3] >> 2))  /16382.0) - 40;
 
-	sensorRead.latitude =  neom8n_data.latitude;
+	printf("3 second TIMER CALL in i2C math done\n");
+	//printf("GPS Location: Latitude %f°, Longitude %f°\n", neom8n_data.latitude, neom8n_data.longitude);
+	mjd_neom8n_read(&neom8n_config, &neom8n_data);
+    sensorRead.latitude =  neom8n_data.latitude;
 	sensorRead.longitude = neom8n_data.longitude;
+
+	printf("3 second TIMER CALL in i2C GNSS GRAB complete\n");
 
 	sensorValues *ptr_temp = &sensorRead;
 	ptr_inp->lux = ptr_temp->lux;
@@ -212,11 +220,13 @@ void i2c_main_init()
 	//variable initialization
 	uint8_t *cmd_code = (uint8_t *)malloc(1*sizeof(uint8_t));
 	uint8_t *lux_wr = (uint8_t *)malloc(2*sizeof(uint8_t));
+
 	lux_wr[0] = 0x00;
 	lux_wr[1] = 0x00;
 	cmd_code[0] = 0x00;
 	sensorRead.hum_temp_data = (uint8_t *)malloc(4*sizeof(uint8_t));
 	sensorRead.lux_data = (uint8_t *)malloc(2*sizeof(uint8_t));
+
 	sensorRead.lux_cmd_code = 0x04;
     //GNSS initialization
 	//mjd_neom8n_config_t neom8n_config;
