@@ -22,5 +22,5 @@ typedef struct{
 	float latitude;
 }sensorValues;
 
-void updateEnvSens(sensorValues* ptr_inp);
+void updateEnvSens(sensorValues* ptr_inp, uint8_t select);
 void i2c_main_init();

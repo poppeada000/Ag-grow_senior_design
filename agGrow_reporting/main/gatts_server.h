@@ -18,11 +18,19 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 */
 typedef struct{
 	uint8_t header;
-	uint8_t msbValue;
-	uint8_t bValue;
-	uint8_t lsbValue;
-	uint8_t longValue;
-	uint8_t latValue;
+	uint8_t byte0;
+	uint8_t byte1;
+	uint8_t byte2;
+	uint8_t byte3;
+	uint8_t byte4;
+	uint8_t byte5;
+	uint8_t byte6;
+	uint8_t byte7;
+	uint8_t byte8;
+	uint8_t byte9;
+	uint8_t byte10;
+	uint8_t byte11;
+	uint8_t byte12;
 }ReportData;
 
 void gatts_server_init();

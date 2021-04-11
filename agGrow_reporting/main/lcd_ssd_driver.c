@@ -46,6 +46,8 @@ typedef enum {
 lcd_dev_t lcddev;
 extern const Picture *image;
 spi_bus spi_bus_caller;
+pageID currentPage;
+
 // A 12x6 font
 const unsigned char asc2_1206[95][12]={
 {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},/*" ",0*/
@@ -243,46 +245,7 @@ const unsigned char asc2_1608[95][16]={
 {0x00,0x06,0x08,0x08,0x08,0x08,0x08,0x10,0x08,0x08,0x08,0x08,0x08,0x08,0x06,0x00},/*"}",93*/
 {0x0C,0x32,0xC2,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},/*"~",94*/
 };
-//Place data into DRAM. Constant data gets placed into DROM by default, which is not accessible by DMA.
-/*
-DRAM_ATTR static const lcd_init_cmd_t ssd_init_cmds[]={
-    {SSD2119_SLEEP_MODE_1_REG, {0x00, 0x01}, 2},
-    {SSD2119_PWR_CTRL_5_REG, {0x00, 0xB2}, 2},
-    {SSD2119_VCOM_OTP_1_REG, {0x00, 0x06}, 2},
-    {SSD2119_OSC_START_REG, {0x00, 0x01}, 2},
-    {SSD2119_OUTPUT_CTRL_REG, {0x30, 0xEF}, 2},
-    {SSD2119_LCD_DRIVE_AC_CTRL_REG, {0x06, 0x00}, 2},
-    {SSD2119_SLEEP_MODE_1_REG, {0x00, 0x00}, 2},
-	{0, {0}, 0xff}
-};
 
-DRAM_ATTR static const lcd_init_cmd_t ssd_init2_cmds[]={
-	{SSD2119_ENTRY_MODE_REG, {0x68, 0x30}, 2},
-    {SSD2119_SLEEP_MODE_2_REG, {0x09, 0x99}, 2},
-    {SSD2119_ANALOG_SET_REG, {0x38, 0x00}, 2},
-    {SSD2119_DISPLAY_CTRL_REG, {0x00, 0x33}, 2},
-    {SSD2119_PWR_CTRL_2_REG, {0x00, 0x05}, 2},
-    {SSD2119_GAMMA_CTRL_1_REG, {0x00, 0x00}, 2},
-    {SSD2119_GAMMA_CTRL_2_REG, {0x03, 0x03}, 2},
-    {SSD2119_GAMMA_CTRL_3_REG, {0x04, 0x07}, 2},
-    {SSD2119_GAMMA_CTRL_4_REG, {0x03, 0x01}, 2},
-    {SSD2119_GAMMA_CTRL_5_REG, {0x03, 0x01}, 2},
-    {SSD2119_GAMMA_CTRL_6_REG, {0x04, 0x03}, 2},
-    {SSD2119_GAMMA_CTRL_7_REG, {0x07, 0x07}, 2},
-    {SSD2119_GAMMA_CTRL_8_REG, {0x04, 0x00}, 2},
-    {SSD2119_GAMMA_CTRL_9_REG, {0x0A, 0x00}, 2},
-    {SSD2119_GAMMA_CTRL_10_REG, {0x10, 0x00}, 2},
-    {SSD2119_PWR_CTRL_3_REG, {0x00, 0x0A}, 2},
-    {SSD2119_PWR_CTRL_4_REG, {0x2E, 0x00}, 2},
-	{SSD2119_V_RAM_POS_REG, {0x00, 0xEF}, 2},
-	{SSD2119_H_RAM_START_REG, {0x00, 0x00}, 2},
-	{SSD2119_H_RAM_END_REG, {0x01, 0x3F}, 2},
-	{SSD2119_X_RAM_ADDR_REG, {0x00, 0x00}, 2},
-    {SSD2119_Y_RAM_ADDR_REG, {0x00, 0x00}, 2},
-    {SSD2119_RAM_DATA_REG, {0x00, 0x00}, 2},
-	{0, {0}, 0xff}
-};
-*/
 void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd)
 {
 	//gpio_set_level(PIN_NUM_SCS, 0);
@@ -333,7 +296,6 @@ void lcd_spi_pre_transfer_callback(spi_transaction_t *t)
     int dc=(int)t->user;
     gpio_set_level(PIN_NUM_SDC, dc);
 }
-
 
 // Write to an LCD "register"
 void LCD_WR_REG(spi_device_handle_t spi, uint8_t data)
@@ -446,6 +408,14 @@ void LCD_Clear(spi_device_handle_t spi, u16 Color)
 //===========================================================================
 void LCD_SetWindow(spi_device_handle_t spi, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd)
 {
+    lcd_cmd(spi, SSD2119_X_RAM_ADDR_REG);
+    LCD_WR_DATA(spi, (uint8_t)(xStart>>8));
+    LCD_WR_DATA(spi, (uint8_t)xStart);
+
+    lcd_cmd(spi, SSD2119_Y_RAM_ADDR_REG);
+    LCD_WR_DATA(spi, 0x00);
+    LCD_WR_DATA(spi, (uint8_t)yStart);
+
     LCD_WR_REG(spi, SSD2119_H_RAM_START_REG);
     LCD_WR_DATA(spi, (uint8_t)(xStart>>8));
     LCD_WR_DATA(spi, (uint8_t)(0x00FF & xStart));
@@ -525,192 +495,41 @@ void LCD_DrawRectangle(spi_device_handle_t spi, u16 x1, u16 y1, u16 x2, u16 y2, 
 }
 
 //===========================================================================
-// Fill a rectangle with color c from (x1,y1) to (x2,y2).
-//===========================================================================
-void LCD_Fill(spi_device_handle_t spi, u16 sx,u16 sy,u16 ex,u16 ey,u16 color)
-{
-    u16 i,j;
-    u16 width=ex-sx+1;
-    u16 height=ey-sy+1;
-
-    LCD_SetWindow(spi, sx,sy,ex,ey);
-
-    for(i=0;i<height;i++)
-    {
-        for(j=0;j<width;j++)
-        LCD_WriteData16(spi, color);
-    }
-
-}
-
-//===========================================================================
 // Draw a filled rectangle of lines of color c from (x1,y1) to (x2,y2).
 //===========================================================================
 void LCD_DrawFillRectangle(spi_device_handle_t spi, u16 x1, u16 y1, u16 x2, u16 y2, u16 c)
 {
-	printf("LCD SSD2119: Drawing Rect.\n");
-    LCD_Fill(spi, x1,y1,x2,y2,c);
-}
+	//printf("LCD SSD2119: Drawing Rect.\n");
+    //LCD_Fill(spi, x1,y1,x2,y2,c);
+    lcd_cmd(spi, SSD2119_X_RAM_ADDR_REG);
+    LCD_WR_DATA(spi, (uint8_t)(x1>>8));
+    LCD_WR_DATA(spi, (uint8_t)x1);
 
-static void _draw_circle_8(spi_device_handle_t spi, int xc, int yc, int x, int y, u16 c)
-{
-    LCD_DrawPoint(spi, xc + x, yc + y, c);
-    LCD_DrawPoint(spi, xc - x, yc + y, c);
-    LCD_DrawPoint(spi, xc + x, yc - y, c);
-    LCD_DrawPoint(spi, xc - x, yc - y, c);
-    LCD_DrawPoint(spi, xc + y, yc + x, c);
-    LCD_DrawPoint(spi, xc - y, yc + x, c);
-    LCD_DrawPoint(spi, xc + y, yc - x, c);
-    LCD_DrawPoint(spi, xc - y, yc - x, c);
-}
+    lcd_cmd(spi, SSD2119_Y_RAM_ADDR_REG);
+    LCD_WR_DATA(spi, 0x00);
+    LCD_WR_DATA(spi, (uint8_t)y1);
 
-//===========================================================================
-// Draw a circle of color c and radius r at center (xc,yc).
-// The fill parameter indicates if it is to be filled.
-//===========================================================================
-void LCD_Circle(spi_device_handle_t spi, u16 xc, u16 yc, u16 r, u16 fill, u16 c)
-{
-    int x = 0, y = r, yi, d;
-    d = 3 - 2 * r;
+    lcd_cmd(spi, SSD2119_V_RAM_POS_REG);
+    LCD_WR_DATA(spi, (uint8_t)y2);
+    LCD_WR_DATA(spi, (uint8_t)y1);
 
-    if (fill)
+    lcd_cmd(spi, SSD2119_H_RAM_START_REG);
+    LCD_WR_DATA(spi, (uint8_t)(x1>>8));
+    LCD_WR_DATA(spi, (uint8_t)x1);
+
+    lcd_cmd(spi, SSD2119_H_RAM_END_REG);
+    LCD_WR_DATA(spi, (uint8_t)(x2>>8));
+    LCD_WR_DATA(spi, (uint8_t)(x2));
+
+    uint32_t ulCount;
+    lcd_cmd(spi, SSD2119_RAM_DATA_REG);
+    for(ulCount = 0; ulCount < (x2-x1+1)*(y2-y1+1); ulCount++)
     {
-        while (x <= y) {
-            for (yi = x; yi <= y; yi++)
-                _draw_circle_8(spi, xc, yc, x, yi, c);
+        LCD_WR_DATA(spi, (uint8_t)(c>>8));
+        LCD_WR_DATA(spi, (uint8_t)c);    // Black
 
-            if (d < 0) {
-                d = d + 4 * x + 6;
-            } else {
-                d = d + 4 * (x - y) + 10;
-                y--;
-            }
-            x++;
-        }
-    } else
-    {
-        while (x <= y) {
-            _draw_circle_8(spi, xc, yc, x, y, c);
-            if (d < 0) {
-                d = d + 4 * x + 6;
-            } else {
-                d = d + 4 * (x - y) + 10;
-                y--;
-            }
-            x++;
-        }
     }
 }
-
-//===========================================================================
-// Draw a triangle of lines of color c with vertices at (x0,y0), (x1,y1), (x2,y2).
-//===========================================================================
-void LCD_DrawTriangle(spi_device_handle_t spi, u16 x0,u16 y0,  u16 x1,u16 y1,  u16 x2,u16 y2, u16 c)
-{
-    LCD_DrawLine(spi,x0,y0,x1,y1,c);
-    LCD_DrawLine(spi,x1,y1,x2,y2,c);
-    LCD_DrawLine(spi,x2,y2,x0,y0,c);
-}
-
-static void _swap(u16 *a, u16 *b)
-{
-    u16 tmp;
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
-//===========================================================================
-// Draw a filled triangle of color c with vertices at (x0,y0), (x1,y1), (x2,y2).
-//===========================================================================
-void LCD_DrawFillTriangle(spi_device_handle_t spi, u16 x0,u16 y0, u16 x1,u16 y1, u16 x2,u16 y2, u16 c)
-{
-    u16 a, b, y, last;
-    int dx01, dy01, dx02, dy02, dx12, dy12;
-    long sa = 0;
-    long sb = 0;
-    if (y0 > y1)
-    {
-    _swap(&y0,&y1);
-        _swap(&x0,&x1);
-    }
-    if (y1 > y2)
-    {
-    _swap(&y2,&y1);
-        _swap(&x2,&x1);
-    }
-  if (y0 > y1)
-    {
-    _swap(&y0,&y1);
-        _swap(&x0,&x1);
-  }
-    if(y0 == y2)
-    {
-        a = b = x0;
-        if(x1 < a)
-    {
-            a = x1;
-    }
-    else if(x1 > b)
-    {
-            b = x1;
-    }
-    if(x2 < a)
-    {
-            a = x2;
-    }
-        else if(x2 > b)
-    {
-            b = x2;
-    }
-        LCD_Fill(spi, a,y0,b,y0,c);
-    return;
-    }
-    dx01 = x1 - x0;
-    dy01 = y1 - y0;
-    dx02 = x2 - x0;
-    dy02 = y2 - y0;
-    dx12 = x2 - x1;
-    dy12 = y2 - y1;
-
-    if(y1 == y2)
-    {
-        last = y1;
-    }
-  else
-    {
-        last = y1-1;
-    }
-    for(y=y0; y<=last; y++)
-    {
-        a = x0 + sa / dy01;
-        b = x0 + sb / dy02;
-        sa += dx01;
-    sb += dx02;
-    if(a > b)
-    {
-            _swap(&a,&b);
-        }
-        LCD_Fill(spi, a,y,b,y,c);
-    }
-    sa = dx12 * (y - y1);
-    sb = dx02 * (y - y0);
-    for(; y<=y2; y++)
-    {
-        a = x1 + sa / dy12;
-        b = x0 + sb / dy02;
-        sa += dx12;
-        sb += dx02;
-        if(a > b)
-        {
-            _swap(&a,&b);
-        }
-        LCD_Fill(spi, a,y,b,y,c);
-    }
-}
-
-
-
 //===========================================================================
 // Display a single character at position x,y on the screen.
 // fc,bc are the foreground,background colors
@@ -723,7 +542,7 @@ void LCD_DrawChar(spi_device_handle_t spi, u16 x, u16 y,u16 fc, u16 bc, u8 num, 
     u8 temp;
     u8 pos,t;
     num=num-' ';
-    LCD_SetWindow(spi, x,y,x+size/2-1,y+size-1);
+    LCD_SetWindow(spi, x,y,x+size/2,y+size);
     if (!mode) {
         for(pos=0;pos<size;pos++) {
             if (size == 12)
@@ -736,7 +555,6 @@ void LCD_DrawChar(spi_device_handle_t spi, u16 x, u16 y,u16 fc, u16 bc, u8 num, 
                 else
                 	LCD_DrawPoint(spi, x+t, y+pos, bc);
                 temp>>=1;
-
             }
         }
     } else {
@@ -775,41 +593,144 @@ void LCD_DrawString(spi_device_handle_t spi, u16 x,u16 y, u16 fc, u16 bg, const 
     }
 }
 
-//===========================================================================
-// Draw a picture with upper left corner at (x0,y0).
-//===========================================================================
-
 void Main_menu()
 {
-
     const Picture *pic = (const Picture *)&image;
     // No error handling.  Just loop forever if out-of-bounds.
     spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
     lcd_cmd(spi, SSD2119_V_RAM_POS_REG);
     LCD_WR_DATA(spi, 0xEF);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_H_RAM_START_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_H_RAM_END_REG);
     LCD_WR_DATA(spi, 0x01);
     LCD_WR_DATA(spi, (0x3F));
-
     lcd_cmd(spi, SSD2119_X_RAM_ADDR_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_Y_RAM_ADDR_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_RAM_DATA_REG);
     u8 *data = (u8 *)pic->pixel_data;
     for(int y=0; y<(320*240*2); y++) {
         LCD_WR_DATA(spi, data[y]);
     }
+
+}
+void userSelection()
+{
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+    LCD_DrawFillRectangle(spi, 160, 0, 319, 239, BLACK);
+    LCD_DrawFillRectangle(spi, 0, 0, 159, 239, 0xef36);
+    LCD_DrawFillRectangle(spi, 160, 20, 319, 40, LIGHTBLUE);
+    LCD_DrawFillRectangle(spi, 160, 60, 319, 80, LIGHTBLUE);
+    LCD_DrawFillRectangle(spi, 160, 100, 319, 120, LIGHTBLUE);
+    LCD_DrawFillRectangle(spi, 160, 140, 319, 160, LIGHTBLUE);
+    LCD_DrawFillRectangle(spi, 160, 180, 319, 200, LIGHTBLUE);
+    LCD_DrawFillRectangle(spi, 160, 200, 319, 220, RED);
+    LCD_DrawFillRectangle(spi, 160, 220, 319, 239, GREEN);
+    LCD_DrawChar(spi, 232, 2, WHITE, RED, '0', 16, 1);
+    LCD_DrawChar(spi, 232, 22, BLACK, RED, '1', 16, 1);
+    LCD_DrawChar(spi, 232, 42, WHITE, RED, '2', 16, 1);
+    LCD_DrawChar(spi, 232, 62, BLACK, RED, '3', 16, 1);
+    LCD_DrawChar(spi, 232, 82, WHITE, RED, '4', 16, 1);
+    LCD_DrawChar(spi, 232, 102, BLACK, RED, '5', 16, 1);
+    LCD_DrawChar(spi, 232, 122, WHITE, RED, '6', 16, 1);
+    LCD_DrawChar(spi, 232, 142, BLACK, RED, '7', 16, 1);
+    LCD_DrawChar(spi, 232, 162, WHITE, RED, '8', 16, 1);
+    LCD_DrawChar(spi, 232, 182, BLACK, RED, '9', 16, 1);
+    LCD_DrawString(spi, 205, 202, WHITE, GREEN, "Clear", 16, 1);
+    LCD_DrawString(spi, 205, 222, BLACK, GREEN, "Enter", 16, 1);
+    LCD_DrawString(spi, 52, 95, BLACK, GREEN, "USER ID:", 16, 1);
+    LCD_DrawFillRectangle(spi, 60, 120, 72, 140, WHITE);
+    LCD_DrawFillRectangle(spi, 76, 120, 88, 140, WHITE);
+    LCD_DrawFillRectangle(spi, 92, 120, 104, 140, WHITE);
+}
+void settingTemplate()
+{
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+    LCD_DrawFillRectangle(spi, 160, 0, 319, 239, BLACK);
+    LCD_DrawFillRectangle(spi, 0, 0, 159, 239, 0xef36);
+
+    LCD_DrawFillRectangle(spi, 160, 200, 319, 220, RED);
+    LCD_DrawFillRectangle(spi, 160, 220, 319, 239, GREEN);
+    LCD_DrawChar(spi, 232, 2, WHITE, RED, '0', 16, 1);
+    LCD_DrawChar(spi, 232, 22, WHITE, RED, '1', 16, 1);
+    LCD_DrawChar(spi, 232, 42, WHITE, RED, '2', 16, 1);
+    LCD_DrawChar(spi, 232, 62, WHITE, RED, '3', 16, 1);
+    LCD_DrawChar(spi, 232, 82, WHITE, RED, '4', 16, 1);
+    LCD_DrawChar(spi, 232, 102, WHITE, RED, '5', 16, 1);
+    LCD_DrawChar(spi, 232, 122, WHITE, RED, '6', 16, 1);
+    LCD_DrawChar(spi, 232, 142, WHITE, RED, '7', 16, 1);
+    LCD_DrawChar(spi, 232, 162, WHITE, RED, '8', 16, 1);
+    LCD_DrawChar(spi, 232, 182, WHITE, RED, '9', 16, 1);
+    LCD_DrawString(spi, 205, 202, WHITE, GREEN, "Clear", 16, 1);
+    LCD_DrawString(spi, 205, 222, BLACK, GREEN, "Enter", 16, 1);
+    LCD_DrawString(spi, 52, 95, BLACK, GREEN, "USER ID:", 16, 1);
+    LCD_DrawFillRectangle(spi, 60, 120, 72, 140, WHITE);
+    LCD_DrawFillRectangle(spi, 76, 120, 88, 140, WHITE);
+    LCD_DrawFillRectangle(spi, 92, 120, 104, 140, WHITE);
+}
+void keyPadChar(uint16_t cord)
+{
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+	if(cord > 3260 && cord < 3520 ){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '0', 16, 1);
+		currentPage.ID0[currentPage.loc] = '0';
+		currentPage.loc += 1;
+	}else if(cord > 2960 && cord < 3240 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '1', 16, 1);
+		currentPage.ID0[currentPage.loc] = '1';
+		currentPage.loc += 1;
+	}else if(cord > 2730 && cord < 2940 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '2', 16, 1);
+		currentPage.ID0[currentPage.loc] = '2';
+		currentPage.loc += 1;
+	}else if(cord > 2460 && cord < 2700 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '3', 16, 1);
+		currentPage.ID0[currentPage.loc] = '3';
+		currentPage.loc += 1;
+	}else if(cord > 2240 && cord < 2420 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '4', 16, 1);
+		currentPage.ID0[currentPage.loc] = '4';
+		currentPage.loc += 1;
+	}else if(cord > 1970 && cord < 2220 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '5', 16, 1);
+		currentPage.ID0[currentPage.loc] = '5';
+		currentPage.loc += 1;
+	}else if(cord > 1730 && cord < 1950 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '6', 16, 1);
+		currentPage.ID0[currentPage.loc] = '6';
+		currentPage.loc += 1;
+	}else if(cord > 1450 && cord < 1670 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '7', 16, 1);
+		currentPage.ID0[currentPage.loc] = '7';
+		currentPage.loc += 1;
+	}else if(cord > 1190 && cord < 1400 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '8', 16, 1);
+		currentPage.ID0[currentPage.loc] = '8';
+		currentPage.loc += 1;
+	}else if(cord > 950 && cord < 1170 && currentPage.loc < 3){
+		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '9', 16, 1);
+		currentPage.ID0[currentPage.loc] = '9';
+		currentPage.loc += 1;
+	}else if(cord > 700 && cord < 920 ){
+		currentPage.loc = 0;
+	    LCD_DrawFillRectangle(spi, 60, 120, 72, 140, WHITE);
+	    LCD_DrawFillRectangle(spi, 76, 120, 88, 140, WHITE);
+	    LCD_DrawFillRectangle(spi, 92, 120, 104, 140, WHITE);
+
+	}else if(cord > 496 && cord < 670 ){
+		if(currentPage.loc > 2 ){
+			currentPage.page = 1;
+			Main_menu();
+		}else{
+		    LCD_DrawString(spi, 44, 150, RED, GREEN, "Finish ID", 16, 1);
+		}
+	}
 
 }
 
@@ -831,170 +752,113 @@ void lcd_init(spi_device_handle_t spi)
     gpio_set_level(PIN_NUM_RST, 0);
     vTaskDelay(100 / portTICK_RATE_MS);
     gpio_set_level(PIN_NUM_RST, 1);
-    vTaskDelay(100 / portTICK_RATE_MS);
-
+    vTaskDelay(50 / portTICK_RATE_MS);
     printf("LCD SSD2119 initialization.\n");
-
     gpio_set_level(PIN_NUM_BCKL, 1);
     lcd_cmd(spi, SSD2119_SLEEP_MODE_1_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x01);
-
     lcd_cmd(spi, SSD2119_PWR_CTRL_5_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0xB2);
-
     lcd_cmd(spi, SSD2119_VCOM_OTP_1_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x06);
-
     lcd_cmd(spi, SSD2119_OSC_START_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x01);
-
     lcd_cmd(spi, SSD2119_OUTPUT_CTRL_REG);
     LCD_WR_DATA(spi, 0x30);
     LCD_WR_DATA(spi, 0xEF);
-
     lcd_cmd(spi, SSD2119_LCD_DRIVE_AC_CTRL_REG);
     LCD_WR_DATA(spi, 0x06);
     LCD_WR_DATA(spi, 0x00);
-
     lcd_cmd(spi, SSD2119_SLEEP_MODE_1_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x00);
-	vTaskDelay(300 / portTICK_RATE_MS);
-
+	vTaskDelay(30 / portTICK_RATE_MS);
     lcd_cmd(spi, SSD2119_ENTRY_MODE_REG);
     LCD_WR_DATA(spi, 0x62);
     LCD_WR_DATA(spi, 0x30);
-
     lcd_cmd(spi, SSD2119_SLEEP_MODE_2_REG);
     LCD_WR_DATA(spi, 0x09);
     LCD_WR_DATA(spi, 0x99);
-
     lcd_cmd(spi, SSD2119_DISPLAY_CTRL_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x33);
-
     lcd_cmd(spi, SSD2119_PWR_CTRL_2_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, 0x05);
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_1_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_2_REG);
     LCD_WR_DATA(spi, 0x03);
     LCD_WR_DATA(spi, (0x03));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_3_REG);
     LCD_WR_DATA(spi, 0x04);
     LCD_WR_DATA(spi, (0x07));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_4_REG);
     LCD_WR_DATA(spi, 0x03);
     LCD_WR_DATA(spi, (0x01));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_5_REG);
     LCD_WR_DATA(spi, 0x03);
     LCD_WR_DATA(spi, (0x01));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_6_REG);
     LCD_WR_DATA(spi, 0x04);
     LCD_WR_DATA(spi, (0x03));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_7_REG);
     LCD_WR_DATA(spi, 0x07);
     LCD_WR_DATA(spi, (0x07));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_8_REG);
     LCD_WR_DATA(spi, 0x04);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_9_REG);
     LCD_WR_DATA(spi, 0x0A);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_GAMMA_CTRL_10_REG);
     LCD_WR_DATA(spi, 0x10);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_PWR_CTRL_3_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x0A));
-
     lcd_cmd(spi, SSD2119_PWR_CTRL_4_REG);
     LCD_WR_DATA(spi, 0x2E);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_V_RAM_POS_REG);
     LCD_WR_DATA(spi, 0xEF);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_H_RAM_START_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_H_RAM_END_REG);
     LCD_WR_DATA(spi, 0x01);
     LCD_WR_DATA(spi, (0x3F));
-
     lcd_cmd(spi, SSD2119_X_RAM_ADDR_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_Y_RAM_ADDR_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     lcd_cmd(spi, SSD2119_RAM_DATA_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-/*
-    uint32_t ulCount;
-    volatile uint32_t i;
-    lcd_cmd(spi, SSD2119_RAM_DATA_REG);
-    for(ulCount = 0; ulCount < 76800; ulCount++)
-    {
-        LCD_WR_DATA(spi, 0xF6);
-        LCD_WR_DATA(spi, (0x47));    // Black
-        //HAL_LCD_writeData(0xF800);    // Red
-        //HAL_LCD_writeData(0x07E0);    // Green
-        //HAL_LCD_writeData(0x001F);    // Blue
-    }
-    */
-    printf("LCD SSD2119 initialization Complete.\n");
-/*
- *
-    //Send all the commands
-    while (lcd_init_cmds[cmd].databytes!=0xff) {
-        lcd_cmd(spi, lcd_init_cmds[cmd].cmd);
-        lcd_data(spi, lcd_init_cmds[cmd].data, lcd_init_cmds[cmd].databytes&0x1F);
-        if (lcd_init_cmds[cmd].databytes&0x80) {
-            vTaskDelay(100 / portTICK_RATE_MS);
-        }
-        cmd++;
-    }
-    vTaskDelay(30 / portTICK_RATE_MS);
-    lcd_init_cmds = ssd_init2_cmds;
 
-    //Send all the commands
-    while (lcd_init_cmds[cmd].databytes!=0xff) {
-        lcd_cmd(spi, lcd_init_cmds[cmd].cmd);
-        lcd_data(spi, lcd_init_cmds[cmd].data, lcd_init_cmds[cmd].databytes&0x1F);
-        if (lcd_init_cmds[cmd].databytes&0x80) {
-            vTaskDelay(100 / portTICK_RATE_MS);
-        }
-        cmd++;
-    }
-
-    ///Enable backlight
-    gpio_set_level(PIN_NUM_BCKL, 1);
     printf("LCD SSD2119 initialization Complete.\n");
-*/
 }
+
+uint8_t updateActivePage()
+{
+	return currentPage.page;
+}
+void touchInterface(uint16_t yCord)
+{
+	if(currentPage.page == 0)
+	{
+		keyPadChar(yCord);
+	}
+}
+
 void begin_displaying()
 {
     esp_err_t ret;
@@ -1026,10 +890,12 @@ void begin_displaying()
     ESP_ERROR_CHECK(ret);
     //Initialize the LCD
     lcd_init(spi);
+    currentPage.page = 0;
+    currentPage.loc = 0;
     //LCD_DrawChar(spi, 50, 50, BLUE, RED, 'A', 16, 1);
     spi_bus_caller.spi_bus_call = spi;
-    Main_menu();
-    LCD_DrawString(spi, 50,112, BLACK, GREEN, "Adam", 12, 1);
+    //Main_menu();
+    userSelection();
+    //LCD_DrawString(spi, 50,112, BLACK, GREEN, "Adam", 12, 1);
+    //LCD_DrawFillRectangle(spi, 0, 0, 50, 50, RED);
 }
-
-

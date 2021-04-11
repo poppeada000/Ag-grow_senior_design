@@ -182,33 +182,36 @@ static esp_err_t i2c_lux_init(i2c_port_t i2c_num, uint8_t *cmd_code, uint8_t *lu
     return ret;
 }
 
-void updateEnvSens(sensorValues *ptr_inp)
+void updateEnvSens(sensorValues *ptr_inp, uint8_t select)
 {
-	printf("3 second TIMER CALL in i2C\n");
-    i2c_humidity_temp_read(1, sensorRead.hum_temp_data);
-    printf("3 second TIMER CALL in i2C lux\n");
-    i2c_lux_read(1, sensorRead.lux_cmd_code, sensorRead.lux_data);
-    printf("3 second TIMER CALL in i2C lux and temp done\n");
-
-    // Humidity: in first two bytes
-    sensorRead.lux = (sensorRead.lux_data[0] + (sensorRead.lux_data[1] << 8)) * 0.0576;
-	sensorRead.humidity = ( (int) ((sensorRead.hum_temp_data[0] << 8) + sensorRead.hum_temp_data[1]) /16382.0) * 100.0;
-	sensorRead.temp = 165*( (int)((sensorRead.hum_temp_data[2] << 6) + (sensorRead.hum_temp_data[3] >> 2))  /16382.0) - 40;
-
-	printf("3 second TIMER CALL in i2C math done\n");
-	//printf("GPS Location: Latitude %f°, Longitude %f°\n", neom8n_data.latitude, neom8n_data.longitude);
-	mjd_neom8n_read(&neom8n_config, &neom8n_data);
-    sensorRead.latitude =  neom8n_data.latitude;
-	sensorRead.longitude = neom8n_data.longitude;
-
-	printf("3 second TIMER CALL in i2C GNSS GRAB complete\n");
-
 	sensorValues *ptr_temp = &sensorRead;
-	ptr_inp->lux = ptr_temp->lux;
-	ptr_inp->humidity = ptr_temp->humidity;
-	ptr_inp->temp = ptr_temp->temp;
-	ptr_inp->latitude = ptr_temp->latitude;
-	ptr_inp->longitude = ptr_temp->longitude;
+	//printf("3 second TIMER CALL in i2C\n");
+	switch(select){
+		case 1:
+			i2c_humidity_temp_read(1, sensorRead.hum_temp_data);
+			sensorRead.humidity = ( (int) ((sensorRead.hum_temp_data[0] << 8) + sensorRead.hum_temp_data[1]) /16382.0) * 100.0;
+			sensorRead.temp = 165*( (int)((sensorRead.hum_temp_data[2] << 6) + (sensorRead.hum_temp_data[3] >> 2))  /16382.0) - 40;
+			ptr_inp->humidity = ptr_temp->humidity;
+			ptr_inp->temp = ptr_temp->temp;
+			break;
+		case 2:
+		    i2c_lux_read(1, sensorRead.lux_cmd_code, sensorRead.lux_data);
+		    sensorRead.lux = (sensorRead.lux_data[0] + (sensorRead.lux_data[1] << 8)) * 0.0576;
+		    ptr_inp->lux = ptr_temp->lux;
+		    break;
+		case 3:
+			mjd_neom8n_read(&neom8n_config, &neom8n_data);
+		    sensorRead.latitude =  neom8n_data.latitude;
+			sensorRead.longitude = neom8n_data.longitude;
+			ptr_inp->latitude = ptr_temp->latitude;
+			ptr_inp->longitude = ptr_temp->longitude;
+			break;
+	}
+    //printf("3 second TIMER CALL in i2C lux\n");
+    //printf("3 second TIMER CALL in i2C lux and temp done\n");
+	//printf("3 second TIMER CALL in i2C math done\n");
+	//printf("GPS Location: Latitude %f°, Longitude %f°\n", neom8n_data.latitude, neom8n_data.longitude);
+	//printf("3 second TIMER CALL in i2C GNSS GRAB complete\n");
 }
 
 

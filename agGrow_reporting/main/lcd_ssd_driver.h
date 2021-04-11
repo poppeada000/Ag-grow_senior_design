@@ -148,7 +148,14 @@ typedef const struct {
     unsigned char  pixel_data[0]; // variable length array
 } Picture;
 
+typedef struct{
+	uint8_t page;
+	uint8_t loc;
+	char ID0[3];
+} pageID;
+
 void Main_menu();
-
-
+void userSeletion();
+uint8_t updateActivePage();
+void touchInterface(uint16_t yCord);
 #endif /* MAIN_INCLUDES_LCD_SSD_DRIVER_H_ */
