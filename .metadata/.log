@@ -3066,3 +3066,76 @@ java.lang.NullPointerException: Cannot invoke "org.eclipse.core.resources.IResou
 	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:660)
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:597)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1468)
+!SESSION 2021-04-12 12:19:46.387 -----------------------------------------------
+eclipse.buildId=4.13.0.I20190916-1045
+java.version=15.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.cpp.product
+
+!ENTRY org.eclipse.egit.ui 2 0 2021-04-12 12:20:21.775
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\popad'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.eclipse.equinox.p2.director 2 10054 2021-04-12 12:20:53.059
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE Software being installed: artificial_root 1.0.0.v1618244449311
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2021-04-12 12:20:53.060
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE Template Engine Freemarker Support (Java 11) 1.1.100.202001140305 (org.eclipse.tools.templates.freemarker.java11 1.1.100.202001140305)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE Template Engine Freemarker Support (Java 11) 1.0.0.201812111206 (org.eclipse.tools.templates.freemarker.java11 1.0.0.201812111206)
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2021-04-12 12:20:53.060
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE From: artificial_root 1.0.0.v1618244449311
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.espressif.idf.feature.feature.group 1.2.4.202101041022
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2021-04-12 12:20:53.060
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE From: artificial_root 1.0.0.v1618244449311
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE To: org.eclipse.equinox.p2.iu; org.eclipse.cdt.arduino.feature.group 0.0.0
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2021-04-12 12:20:53.060
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE From: Espressif IDF Plugins for Eclipse 1.2.4.202101041022 (com.espressif.idf.feature.feature.group 1.2.4.202101041022)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE To: org.eclipse.equinox.p2.iu; org.eclipse.tools.templates.freemarker.java11 [1.1.100.202001140305,1.1.100.202001140305]
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2021-04-12 12:20:53.060
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE From: Arduino C++ Tools 9.9.0.201908121111 (org.eclipse.cdt.arduino.feature.group 9.9.0.201908121111)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2021-04-12 12:20:53.060
+!MESSAGE To: org.eclipse.equinox.p2.iu; org.eclipse.tools.templates.freemarker.java11 [1.0.0.201812111206,1.0.0.201812111206]
+
+!ENTRY org.eclipse.oomph.setup.ui 1 0 2021-04-12 12:20:53.064
+!MESSAGE Setup tasks were performed during startup.See 'C:\Users\popad\eclipse\cpp-2019-09\eclipse\configuration\org.eclipse.oomph.setup\setup.log' for details
+
+!ENTRY com.espressif.idf.core 1 0 2021-04-12 12:21:03.551
+!MESSAGE Initializing toolchain...
+
+!ENTRY com.espressif.idf.core 1 0 2021-04-12 12:21:03.567
+!MESSAGE idf_tools.py path: C:\Users\popad\esp\esp-idf-v4.0/tools/idf_tools.py
+
+!ENTRY com.espressif.idf.core 1 0 2021-04-12 12:21:03.607
+!MESSAGE [C:\Users\popad\AppData\Local\Programs\Python\Python37\python.exe, C:\Users\popad\esp\esp-idf-v4.0/tools/idf_tools.py, export, --format=key-value]
+
+!ENTRY com.espressif.idf.core 1 0 2021-04-12 12:21:04.737
+!MESSAGE idf_tools.py export output: OPENOCD_SCRIPTS=C:\Users\popad\.espressif\tools\openocd-esp32\v0.10.0-esp32-20190313\openocd-esp32\share\openocd\scripts
+IDF_CCACHE_ENABLE=1
+IDF_PYTHON_ENV_PATH=C:\Users\popad\.espressif\python_env\idf4.0_py3.7_env
+PATH=C:\Users\popad\.espressif\tools\xtensa-esp32-elf\esp-2019r2-8.2.0\xtensa-esp32-elf\bin;C:\Users\popad\.espressif\tools\esp32ulp-elf\2.28.51.20170517\esp32ulp-elf-binutils\bin;C:\Users\popad\.espressif\tools\cmake\3.13.4\bin;C:\Users\popad\.espressif\tools\openocd-esp32\v0.10.0-esp32-20190313\openocd-esp32\bin;C:\Users\popad\.espressif\tools\mconf\v4.6.0.0-idf-20190628\;C:\Users\popad\.espressif\tools\ninja\1.9.0\;C:\Users\popad\.espressif\tools\idf-exe\1.0.1\;C:\Users\popad\.espressif\tools\ccache\3.7\;C:\Users\popad\.espressif\python_env\idf4.0_py3.7_env\Scripts;C:\Users\popad\esp\esp-idf-v4.0\tools;%PATH%
+
+!ENTRY com.espressif.idf.core 1 0 2021-04-12 12:21:04.742
+!MESSAGE PATH: C:\Users\popad\.espressif\tools\xtensa-esp32-elf\esp-2019r2-8.2.0\xtensa-esp32-elf\bin;C:\Users\popad\.espressif\tools\esp32ulp-elf\2.28.51.20170517\esp32ulp-elf-binutils\bin;C:\Users\popad\.espressif\tools\cmake\3.13.4\bin;C:\Users\popad\.espressif\tools\openocd-esp32\v0.10.0-esp32-20190313\openocd-esp32\bin;C:\Users\popad\.espressif\tools\mconf\v4.6.0.0-idf-20190628\;C:\Users\popad\.espressif\tools\ninja\1.9.0\;C:\Users\popad\.espressif\tools\idf-exe\1.0.1\;C:\Users\popad\.espressif\tools\ccache\3.7\;C:\Users\popad\.espressif\python_env\idf4.0_py3.7_env\Scripts;C:\Users\popad\esp\esp-idf-v4.0\tools;%PATH%
+
+!ENTRY com.espressif.idf.core 1 0 2021-04-12 12:21:04.743
+!MESSAGE [C:\Users\popad\.espressif\tools\xtensa-esp32-elf\esp-2019r2-8.2.0\xtensa-esp32-elf\bin;C:\Users\popad\.espressif\tools\esp32ulp-elf\2.28.51.20170517\esp32ulp-elf-binutils\bin;C:\Users\popad\.espressif\tools\cmake\3.13.4\bin;C:\Users\popad\.espressif\tools\openocd-esp32\v0.10.0-esp32-20190313\openocd-esp32\bin;C:\Users\popad\.espressif\tools\mconf\v4.6.0.0-idf-20190628\;C:\Users\popad\.espressif\tools\ninja\1.9.0\;C:\Users\popad\.espressif\tools\idf-exe\1.0.1\;C:\Users\popad\.espressif\tools\ccache\3.7\;C:\Users\popad\.espressif\python_env\idf4.0_py3.7_env\Scripts;C:\Users\popad\esp\esp-idf-v4.0\tools;%PATH%]

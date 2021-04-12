@@ -146,7 +146,6 @@ const unsigned char asc2_1206[95][12]={
 {0x00,0x06,0x04,0x04,0x04,0x08,0x04,0x04,0x04,0x04,0x06,0x00},/*"}",93*/
 {0x02,0x25,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00} /*"~",94*/
 };
-
 // A 16x8 font
 const unsigned char asc2_1608[95][16]={
 {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},/*" ",0*/
@@ -366,42 +365,6 @@ void LCD_WriteReg(spi_device_handle_t spi, uint8_t LCD_Reg, uint16_t LCD_RegValu
     LCD_WriteData16(spi, LCD_RegValue);
 }
 
-// Issue the "write RAM" command configured for the display.
-void LCD_WriteRAM_Prepare(spi_device_handle_t spi)
-{
-	//printf("LCD SSD2119: RAM Preparing\n");
-    LCD_WR_REG(spi, lcddev.wramcmd);
-	//printf("LCD SSD2119: RAM Prepared\n");
-}
-
-// Configure the lcddev fields for the display orientation.
-void LCD_direction(void)
-{
-    lcddev.setxcmd=0x4E;
-    lcddev.setycmd=0x4F;
-    lcddev.wramcmd=0x22;
-    lcddev.height = LCD_H;
-    lcddev.width = LCD_W;
-}
-
-//===========================================================================
-// Set the entire display to one color
-//===========================================================================
-void LCD_Clear(spi_device_handle_t spi, u16 Color)
-{
-    unsigned int i,m;
-    LCD_SetWindow(spi, 0,0,lcddev.width-1,lcddev.height-1);
-
-    for(i=0;i<lcddev.height;i++)
-    {
-        for(m=0;m<lcddev.width;m++)
-        {
-            LCD_WriteData16(spi, Color);
-        }
-    }
-
-}
-
 //===========================================================================
 // Select a subset of the display to work on, and issue the "Write RAM"
 // command to prepare to send pixel data to it.
@@ -445,43 +408,6 @@ void LCD_DrawPoint(spi_device_handle_t spi, u16 x, u16 y, u16 c)
     LCD_WR_DATA(spi, (uint8_t)(0xFF&c));
 }
 
-//===========================================================================
-// Draw a line of color c from (x1,y1) to (x2,y2).
-//===========================================================================
-void LCD_DrawLine(spi_device_handle_t spi, u16 x1, u16 y1, u16 x2, u16 y2, u16 c)
-{
-    u16 t;
-    int xerr=0,yerr=0,delta_x,delta_y,distance;
-    int incx,incy,uRow,uCol;
-    delta_x=x2-x1;
-    delta_y=y2-y1;
-    uRow=x1;
-    uCol=y1;
-    if(delta_x>0)incx=1;
-    else if(delta_x==0)incx=0;
-    else {incx=-1;delta_x=-delta_x;}
-    if(delta_y>0)incy=1;
-    else if(delta_y==0)incy=0;
-    else{incy=-1;delta_y=-delta_y;}
-    if( delta_x>delta_y)distance=delta_x;
-    else distance=delta_y;
-    for(t=0;t<=distance+1;t++ )
-    {
-        LCD_DrawPoint(spi, uRow,uCol,c);
-        xerr+=delta_x ;
-        yerr+=delta_y ;
-        if(xerr>distance)
-        {
-            xerr-=distance;
-            uRow+=incx;
-        }
-        if(yerr>distance)
-        {
-            yerr-=distance;
-            uCol+=incy;
-        }
-    }
-}
 
 //===========================================================================
 // Draw a rectangle of lines of color c from (x1,y1) to (x2,y2).
@@ -618,7 +544,9 @@ void Main_menu()
     for(int y=0; y<(320*240*2); y++) {
         LCD_WR_DATA(spi, data[y]);
     }
-
+    LCD_DrawChar(spi, 220, 113, BLACK, RED, currentPage.ID0[0], 16, 1);
+    LCD_DrawChar(spi, 229, 113, BLACK, RED, currentPage.ID0[1], 16, 1);
+    LCD_DrawChar(spi, 236, 113, BLACK, RED, currentPage.ID0[2], 16, 1);
 }
 void userSelection()
 {
@@ -719,11 +647,10 @@ void keyPadChar(uint16_t cord)
 		currentPage.loc += 1;
 	}else if(cord > 700 && cord < 920 ){
 		currentPage.loc = 0;
-	    LCD_DrawFillRectangle(spi, 60, 120, 72, 140, WHITE);
+		LCD_DrawFillRectangle(spi, 60, 120, 72, 140, WHITE);
 	    LCD_DrawFillRectangle(spi, 76, 120, 88, 140, WHITE);
 	    LCD_DrawFillRectangle(spi, 92, 120, 104, 140, WHITE);
-
-	}else if(cord > 496 && cord < 670 ){
+	}else if(cord > 400 && cord < 670 ){
 		if(currentPage.loc > 2 ){
 			currentPage.page = 1;
 			Main_menu();
@@ -734,6 +661,149 @@ void keyPadChar(uint16_t cord)
 
 }
 
+void templateSetting()
+{
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+    LCD_DrawFillRectangle(spi, 160, 0, 319, 239, BLACK);
+    LCD_DrawFillRectangle(spi, 0, 0, 159, 239, 0xef36);
+    LCD_DrawFillRectangle(spi, 260, 20, 300, 200, WHITE);
+    //LCD_DrawFillRectangle(spi, 260, 140, 300, 148, RED);
+    LCD_DrawFillRectangle(spi, 160, 209, 319, 239, GREEN);
+    LCD_DrawString(spi, 181, 216, BLACK, GREEN, "Enter", 16, 1);
+
+	if(currentPage.state[currentPage.page] == 0){
+	    LCD_DrawFillRectangle(spi, 260, 192, 300, 200, RED);
+	}else if(currentPage.state[currentPage.page] == 1){
+	    LCD_DrawFillRectangle(spi, 260, 166, 300, 172, RED);
+	}else if(currentPage.state[currentPage.page] == 2){
+	    LCD_DrawFillRectangle(spi, 260, 136, 300, 142, RED);
+	}else if(currentPage.state[currentPage.page] == 3){
+	    LCD_DrawFillRectangle(spi, 260, 106, 300, 114, RED);
+	}else if(currentPage.state[currentPage.page] == 4){
+	    LCD_DrawFillRectangle(spi, 260, 76, 300, 82, RED);
+	}else if(currentPage.state[currentPage.page] == 5){
+	    LCD_DrawFillRectangle(spi, 260, 46, 300, 54, RED);
+	}else if(currentPage.state[currentPage.page] == 6){
+	    LCD_DrawFillRectangle(spi, 260, 20, 300, 28, RED);
+	}
+
+    if(currentPage.page == 2){
+    	    LCD_DrawString(spi, 40, 95, BLACK, GREEN, "CORN COUNT", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "200 Hz->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "100 Hz->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "50 Hz->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Hz->", 16, 1);
+    }else if(currentPage.page == 3){
+    		LCD_DrawString(spi, 12, 95, BLACK, GREEN, "Relative Humidity", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    }else if(currentPage.page ==4){
+    		LCD_DrawString(spi, 4, 95, BLACK, GREEN, "Ambient Temperature", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    }else if(currentPage.page == 5){
+    		LCD_DrawString(spi, 36, 95, BLACK, GREEN, "Illuminance", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    }else{
+    		LCD_DrawString(spi, 70, 95, BLACK, GREEN, "GPS", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    }
+
+}
+
+void updateSetting(uint16_t cord)
+{
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+
+	if(cord > 600 && cord < 760 ){
+		//corn count
+		currentPage.page = 1;
+		Main_menu();
+	}else if(cord > 860 && cord < 3200 ){
+	    LCD_DrawFillRectangle(spi, 260, 20, 300, 200, WHITE);
+		if(cord > 860 && cord < 1055 ){
+		    LCD_DrawFillRectangle(spi, 260, 192, 300, 200, RED);
+		    currentPage.state[currentPage.page] = 0;
+		}else if(cord > 1060 && cord < 1445){
+		    LCD_DrawFillRectangle(spi, 260, 166, 300, 172, RED);
+		    currentPage.state[currentPage.page] = 1;
+		}else if(cord > 1450 && cord < 1835){
+		    LCD_DrawFillRectangle(spi, 260, 136, 300, 142, RED);
+		    currentPage.state[currentPage.page] = 2;
+		}else if(cord > 1840 && cord < 2225){
+		    LCD_DrawFillRectangle(spi, 260, 106, 300, 114, RED);
+		    currentPage.state[currentPage.page] = 3;
+		}else if(cord > 2230 && cord < 2615){
+		    LCD_DrawFillRectangle(spi, 260, 76, 300, 82, RED);
+		    currentPage.state[currentPage.page] = 4;
+		}else if(cord > 2620 && cord < 3005){
+		    LCD_DrawFillRectangle(spi, 260, 46, 300, 54, RED);
+		    currentPage.state[currentPage.page] = 5;
+		}else if(cord > 3010 && cord < 3200){
+		    LCD_DrawFillRectangle(spi, 260, 20, 300, 28, RED);
+		    currentPage.state[currentPage.page] = 6;
+		}
+	}
+}
+
+void checkSetting(uint16_t cord)
+{
+    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+	if(cord > 2950 && cord < 3400 ){
+		//corn count
+		currentPage.page = 2;
+		templateSetting();
+	}else if(cord > 2560 && cord < 2890){
+		//humidity
+		currentPage.page = 3;
+		templateSetting();
+	}else if(cord >2200  && cord < 2520){
+		//temp
+		currentPage.page = 4;
+		templateSetting();
+	}else if(cord > 1790 && cord < 2150){
+		//illum
+		currentPage.page = 5;
+		templateSetting();
+	}else if(cord > 1420 && cord < 1720){
+		//lat
+		currentPage.page = 6;
+		templateSetting();
+	}else if(cord > 1000 && cord < 1380){
+		//long
+		currentPage.page = 6;
+		templateSetting();
+	}else if(cord > 400 && cord < 920){
+		//start
+		currentPage.page = 8;
+	    LCD_DrawFillRectangle(spi, 5, 195, 176, 236, RED);
+	    LCD_DrawString(spi, 28, 207, WHITE, GREEN, "End Reporting", 16, 1);
+	}
+}
+void checkNew(uint16_t cord){
+	if(cord > 400 && cord < 920){
+			//start
+			currentPage.page = 0;
+		    currentPage.loc = 0;
+		    currentPage.state[2] = 2;
+		    currentPage.state[3] = 2;
+		    currentPage.state[4] = 2;
+		    currentPage.state[5] = 2;
+		    currentPage.state[6] = 2;
+		    currentPage.state[7] = 2;
+		    userSelection();
+		}
+}
 //Initialize the display
 void lcd_init(spi_device_handle_t spi)
 {
@@ -843,13 +913,13 @@ void lcd_init(spi_device_handle_t spi)
     lcd_cmd(spi, SSD2119_RAM_DATA_REG);
     LCD_WR_DATA(spi, 0x00);
     LCD_WR_DATA(spi, (0x00));
-
     printf("LCD SSD2119 initialization Complete.\n");
 }
 
 uint8_t updateActivePage()
 {
 	return currentPage.page;
+	userSelection();
 }
 void touchInterface(uint16_t yCord)
 {
@@ -892,10 +962,14 @@ void begin_displaying()
     lcd_init(spi);
     currentPage.page = 0;
     currentPage.loc = 0;
+    currentPage.state[2] = 2;
+    currentPage.state[3] = 2;
+    currentPage.state[4] = 2;
+    currentPage.state[5] = 2;
+    currentPage.state[6] = 2;
+    currentPage.state[7] = 2;
     //LCD_DrawChar(spi, 50, 50, BLUE, RED, 'A', 16, 1);
     spi_bus_caller.spi_bus_call = spi;
     //Main_menu();
     userSelection();
-    //LCD_DrawString(spi, 50,112, BLACK, GREEN, "Adam", 12, 1);
-    //LCD_DrawFillRectangle(spi, 0, 0, 50, 50, RED);
 }

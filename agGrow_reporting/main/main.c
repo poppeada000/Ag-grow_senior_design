@@ -41,14 +41,28 @@ static void touchSensor_timer_callback(void* arg)
 	scan_touch ptr_inp;
 	//scan_touch *ptr_temp = &ptr_inp;
 	checkTouch(&ptr_inp);
-	if(ptr_inp.detect)
+
+	//nt len = snprintf(NULL, 0, "%f", amount);
+	//char *result = (char *)malloc(len + 1);
+	//snprintf(result, len + 1, "%f", amount);
+	// do stuff with result
+	//printf(result);
+	//free(result);
+	if(ptr_inp.detect && updateActivePage() == 0)
 	{
 		touchInterface(ptr_inp.y);
+	}else if(updateActivePage() == 1)
+	{
+		checkSetting(ptr_inp.y);
+	}else if(updateActivePage() == 8)
+	{
+		checkNew(ptr_inp.y);
+	}else{
+		updateSetting(ptr_inp.y);
 	}
 }
 static void humSensors_timer_callback(void* arg)
 {
-
 	updateEnvSens(&activeSensors, 1);
 	ReportData *ptr_temp = &sendB;
 	sensorValues *ptr_temp_sens = &activeSensors;
@@ -61,7 +75,6 @@ static void humSensors_timer_callback(void* arg)
 	ptr_temp->byte3 = (uint8_t)(humi) & 0x00FF;
 	setDataForRead(&sendB, 0x00);
 	printf("Relative Humidity: %f \n", ptr_temp_sens->humidity);
-
 }
 static void tempSensors_timer_callback(void* arg)
 {

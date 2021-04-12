@@ -152,10 +152,14 @@ typedef struct{
 	uint8_t page;
 	uint8_t loc;
 	char ID0[3];
+	uint8_t state[8];
 } pageID;
 
 void Main_menu();
 void userSeletion();
 uint8_t updateActivePage();
 void touchInterface(uint16_t yCord);
+void checkSetting(uint16_t yCord);
+void updateSetting(uint16_t cord);
+void checkNew(uint16_t cord);
 #endif /* MAIN_INCLUDES_LCD_SSD_DRIVER_H_ */
