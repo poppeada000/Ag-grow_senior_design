@@ -826,14 +826,22 @@ void displayValue(char *value, uint8_t select, uint8_t size)
 	}
 	//LCD_DrawFillRectangle(spi, spi, 85 + ((size+1)*9), 17 + (select*30) , 170, 38 + (select*30), 0xef36);
 }
-void updateBattery(){
+void updateBattery(float voltage){
 	spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
 	LCD_DrawFillRectangle(spi, 217, 134, 251, 150, BLACK);
     LCD_DrawFillRectangle(spi, 249, 138, 254, 146, BLACK);
-
-    LCD_DrawFillRectangle(spi, 220, 137, 228, 147, RED);
-    LCD_DrawFillRectangle(spi, 230, 137, 238, 147, RED);
-    LCD_DrawFillRectangle(spi, 240, 137, 248, 147, RED);
+    if(voltage > 6){
+    	LCD_DrawFillRectangle(spi, 240, 137, 248, 147, RED);
+    }
+    if(voltage > 5.8){
+        LCD_DrawFillRectangle(spi, 230, 137, 238, 147, RED);
+    }
+    if(voltage > 5.4){
+        LCD_DrawFillRectangle(spi, 220, 137, 228, 147, RED);
+    }
+    //LCD_DrawFillRectangle(spi, 220, 137, 228, 147, RED);
+    //LCD_DrawFillRectangle(spi, 230, 137, 238, 147, RED);
+    //LCD_DrawFillRectangle(spi, 240, 137, 248, 147, RED);
 
 }
 //Initialize the display

@@ -399,6 +399,20 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[11] = 0x0;
             rsp.attr_value.value[12] = 0x0;
     	}
+    	ReportData *readingA = &readA;
+        readingA->header = 0x01;
+        readingA->byte0 = 0xFF;
+        readingA->byte1 = 0xFF;
+        readingA->byte2 = 0xFF;
+        readingA->byte3 = 0xFF;
+        readingA->byte4 = 0xFF;
+        readingA->byte5 = 0xFF;
+        readingA->byte6 = 0xFF;
+        readingA->byte7 = 0xFF;
+        readingA->byte8 = 0xFF;
+        readingA->byte9 = 0xFF;
+        readingA->byte10 = 0xFF;
+        readingA->byte11 = 0xFF;
 		readA.header = 0x1;
         printf("Read event set to current: %d \n", rsp.attr_value.value[0]);
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
@@ -599,6 +613,21 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[11] = 0x0;
             rsp.attr_value.value[12] = 0x0;
     	}
+
+        ReportData *readingB = &readB;
+        readingB->byte0 = 0xFF;
+        readingB->byte1 = 0xFF;
+        readingB->byte2 = 0xFF;
+        readingB->byte3 = 0xFF;
+        readingB->byte4 = 0xFF;
+        readingB->byte5 = 0xFF;
+        readingB->byte6 = 0xFF;
+        readingB->byte7 = 0xFF;
+        readingB->byte8 = 0xFF;
+        readingB->byte9 = 0xFF;
+        readingB->byte10 = 0xFF;
+        readingB->byte11 = 0xFF;
+
         readB.header = 0x1;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);

@@ -165,4 +165,5 @@ void updateSetting(uint16_t cord);
 void checkNew(uint16_t cord);
 void activation(pageID* inp_ptr);
 void displayValue(char *value, uint8_t select, uint8_t size);
+void updateBattery(float voltage);
 #endif /* MAIN_INCLUDES_LCD_SSD_DRIVER_H_ */

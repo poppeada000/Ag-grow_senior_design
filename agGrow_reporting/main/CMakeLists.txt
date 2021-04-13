@@ -12,4 +12,7 @@ idf_component_register(SRCS "gatts_server.c"
                             "includes/minmea.c"
                             "includes/main_page.c"
                             "includes/cornCount.c"
+                            "includes/DS2438.c"
+                            "includes/owb_rmt.c"
+                            "includes/owb.c"
                     INCLUDE_DIRS ".")

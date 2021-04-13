@@ -20,7 +20,7 @@
 #include "i2c_main.h"
 #include "lcd_ssd_driver.h"
 #include "includes/cornCount.h"
-
+#include "includes/DS2438.h"
 
 sensorValues activeSensors;
 ReportData sendA;
@@ -144,7 +144,8 @@ static void gpsSensors_timer_callback(void* arg)
 	ptr_temp->byte7 = (uint8_t)(longi>>16) & 0x00FF;
 	ptr_temp->byte8 = (uint8_t)(longi>>8) & 0x00FF;
 	ptr_temp->byte9 = (uint8_t)(longi) & 0x00FF;
-
+	float battery = oneWireMain();
+	updateBattery(battery);
 	setDataForRead(&sendA, 0x01, 1);
 	printf("GPS Location: Latitude %f, Longitude %f\n", ptr_temp_sens->latitude, ptr_temp_sens->longitude);
 }
