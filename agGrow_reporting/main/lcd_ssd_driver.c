@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include "lcd_ssd_driver.h"
 #include "driver/ledc.h"
+#include <math.h>
 //#include "includes/main_page.c"
 
 #define PIN_NUM_MISO 27
@@ -547,6 +548,13 @@ void Main_menu()
     LCD_DrawChar(spi, 220, 113, BLACK, RED, currentPage.ID0[0], 16, 1);
     LCD_DrawChar(spi, 229, 113, BLACK, RED, currentPage.ID0[1], 16, 1);
     LCD_DrawChar(spi, 236, 113, BLACK, RED, currentPage.ID0[2], 16, 1);
+
+    LCD_DrawFillRectangle(spi, 217, 134, 251, 150, BLACK);
+    LCD_DrawFillRectangle(spi, 249, 138, 254, 146, BLACK);
+    LCD_DrawFillRectangle(spi, 220, 137, 228, 147, RED);
+    LCD_DrawFillRectangle(spi, 230, 137, 238, 147, RED);
+    LCD_DrawFillRectangle(spi, 240, 137, 248, 147, RED);
+
 }
 void userSelection()
 {
@@ -584,42 +592,52 @@ void keyPadChar(uint16_t cord)
 	if(cord > 3260 && cord < 3520 ){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '0', 16, 1);
 		currentPage.ID0[currentPage.loc] = '0';
+		currentPage.ID +=  0 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 2960 && cord < 3240 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '1', 16, 1);
 		currentPage.ID0[currentPage.loc] = '1';
+		currentPage.ID +=  1 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 2730 && cord < 2940 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '2', 16, 1);
 		currentPage.ID0[currentPage.loc] = '2';
+		currentPage.ID +=  2 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 2460 && cord < 2700 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '3', 16, 1);
 		currentPage.ID0[currentPage.loc] = '3';
+		currentPage.ID +=  3 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 2240 && cord < 2420 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '4', 16, 1);
 		currentPage.ID0[currentPage.loc] = '4';
+		currentPage.ID +=  4 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 1970 && cord < 2220 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '5', 16, 1);
 		currentPage.ID0[currentPage.loc] = '5';
+		currentPage.ID +=  5 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 1730 && cord < 1950 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '6', 16, 1);
 		currentPage.ID0[currentPage.loc] = '6';
+		currentPage.ID +=  6 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 1450 && cord < 1670 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '7', 16, 1);
 		currentPage.ID0[currentPage.loc] = '7';
+		currentPage.ID +=  7 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 1190 && cord < 1400 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '8', 16, 1);
 		currentPage.ID0[currentPage.loc] = '8';
+		currentPage.ID +=  8 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 950 && cord < 1170 && currentPage.loc < 3){
 		LCD_DrawChar(spi, 62+(currentPage.loc * 16), 122, BLACK, RED, '9', 16, 1);
 		currentPage.ID0[currentPage.loc] = '9';
+		currentPage.ID +=  9 * pow(10, 2 - currentPage.loc);
 		currentPage.loc += 1;
 	}else if(cord > 700 && cord < 920 ){
 		currentPage.loc = 0;
@@ -777,6 +795,7 @@ void checkNew(uint16_t cord){
 		    currentPage.state[5] = 2;
 		    currentPage.state[6] = 2;
 		    currentPage.state[7] = 2;
+		    currentPage.ID = 0;
 		    userSelection();
 		}
 }
@@ -786,6 +805,7 @@ void activation(pageID* inp_ptr){
 	inp_ptr->ID0[0] = ptr_temp->ID0[0];
 	inp_ptr->ID0[1] = ptr_temp->ID0[1];
 	inp_ptr->ID0[2] = ptr_temp->ID0[2];
+	inp_ptr->ID = ptr_temp->ID;
 	inp_ptr->state[2] = ptr_temp->state[2];
 	inp_ptr->state[3] = ptr_temp->state[3];
 	inp_ptr->state[4] = ptr_temp->state[4];
@@ -806,7 +826,16 @@ void displayValue(char *value, uint8_t select, uint8_t size)
 	}
 	//LCD_DrawFillRectangle(spi, spi, 85 + ((size+1)*9), 17 + (select*30) , 170, 38 + (select*30), 0xef36);
 }
+void updateBattery(){
+	spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+	LCD_DrawFillRectangle(spi, 217, 134, 251, 150, BLACK);
+    LCD_DrawFillRectangle(spi, 249, 138, 254, 146, BLACK);
 
+    LCD_DrawFillRectangle(spi, 220, 137, 228, 147, RED);
+    LCD_DrawFillRectangle(spi, 230, 137, 238, 147, RED);
+    LCD_DrawFillRectangle(spi, 240, 137, 248, 147, RED);
+
+}
 //Initialize the display
 void lcd_init(spi_device_handle_t spi)
 {
@@ -965,6 +994,7 @@ void begin_displaying()
     lcd_init(spi);
     currentPage.page = 0;
     currentPage.loc = 0;
+    currentPage.ID = 0;
     currentPage.state[2] = 2;
     currentPage.state[3] = 2;
     currentPage.state[4] = 2;

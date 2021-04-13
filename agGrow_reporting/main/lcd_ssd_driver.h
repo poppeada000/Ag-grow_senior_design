@@ -152,6 +152,7 @@ typedef struct{
 	uint8_t page;
 	uint8_t loc;
 	char ID0[3];
+	uint16_t ID;
 	uint8_t state[8];
 } pageID;
 

@@ -27,6 +27,7 @@ ReportData sendA;
 ReportData sendB;
 pageID displayState;
 corn count;
+
 void activateSensors();
 
 static void lidar_timer_callback(void* arg)
@@ -40,10 +41,10 @@ static void lidar_timer_callback(void* arg)
 	if(count.count != count.countprev){
 		displayValue(value, 0, 5);
 		 printf("Current Count: %d\n", count.count);
+		 ptr_temp->byte0 = (uint8_t)(count.count>>8) & 0x00FF;
+		 ptr_temp->byte1 = (uint8_t)(count.count & 0x00FF);
+		 setDataForRead(&sendA, 0x01, 0);
 	}
-    ptr_temp->byte0 = (uint8_t)(count.count>>8) & 0x00FF;
-    ptr_temp->byte1 = (uint8_t)(count.count & 0x00FF);
-    setDataForRead(&sendA, 0x01);
     count.countprev = count.count;
 
 }
@@ -52,12 +53,10 @@ static void touchSensor_timer_callback(void* arg)
 	scan_touch ptr_inp;
 	//scan_touch *ptr_temp = &ptr_inp;
 	checkTouch(&ptr_inp);
-
-	if(updateActivePage() == 8 && activeSensors.active == 0){
+    if(updateActivePage() == 8 && activeSensors.active == 0){
 		activation(&displayState);
 		activateSensors();
 	}
-
 	if(ptr_inp.detect && updateActivePage() == 0)
 	{
 		touchInterface(ptr_inp.y);
@@ -85,7 +84,7 @@ static void humSensors_timer_callback(void* arg)
 	ptr_temp->byte1 = (uint8_t)(humi>>16) & 0x00FF;
 	ptr_temp->byte2 = (uint8_t)(humi>>8) & 0x00FF;
 	ptr_temp->byte3 = (uint8_t)(humi) & 0x00FF;
-	setDataForRead(&sendB, 0x00);
+	setDataForRead(&sendB, 0x00, 0);
 	printf("Relative Humidity: %f \n", ptr_temp_sens->humidity);
 }
 static void tempSensors_timer_callback(void* arg)
@@ -103,7 +102,7 @@ static void tempSensors_timer_callback(void* arg)
 	ptr_temp->byte5 = (uint8_t)(tempi>>16) & 0x00FF;
 	ptr_temp->byte6 = (uint8_t)(tempi>>8) & 0x00FF;
 	ptr_temp->byte7 = (uint8_t)(tempi & 0x00FF);
-	setDataForRead(&sendB, 0x00);
+	setDataForRead(&sendB, 0x00, 1);
 	printf("Ambient Temperature: %f degrees Celsius\n", ptr_temp_sens->temp);
 
 }
@@ -121,7 +120,7 @@ static void luxSensors_timer_callback(void* arg)
 	ptr_temp->byte9 = (uint8_t)((luxi>>16) & 0x00FF);
 	ptr_temp->byte10 = (uint8_t)((luxi>>8) & 0x00FF);
 	ptr_temp->byte11 = (uint8_t)(luxi & 0x00FF);
-	setDataForRead(&sendB, 0x00);
+	setDataForRead(&sendB, 0x00, 2);
 	printf("Ambient Illuminance: %f lux\n", ptr_temp_sens->lux);
 }
 static void gpsSensors_timer_callback(void* arg)
@@ -146,7 +145,7 @@ static void gpsSensors_timer_callback(void* arg)
 	ptr_temp->byte8 = (uint8_t)(longi>>8) & 0x00FF;
 	ptr_temp->byte9 = (uint8_t)(longi) & 0x00FF;
 
-	setDataForRead(&sendA, 0x01);
+	setDataForRead(&sendA, 0x01, 1);
 	printf("GPS Location: Latitude %f, Longitude %f\n", ptr_temp_sens->latitude, ptr_temp_sens->longitude);
 }
 
@@ -214,7 +213,10 @@ void activateSensors(){
     };
     esp_timer_handle_t gpsSensors_timer;
     ESP_ERROR_CHECK(esp_timer_create(&gpsSensors_timer_args, &gpsSensors_timer));
+	activation(&displayState);
 
+    sendA.byte10 = (uint8_t)(displayState.ID>>8);
+    sendA.byte11 = (uint8_t)(displayState.ID);
 	uint32_t timings[7] = {0};
 	if(displayState.state[2] == 0){
 		timings[2] = 0;
