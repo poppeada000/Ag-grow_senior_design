@@ -162,4 +162,6 @@ void touchInterface(uint16_t yCord);
 void checkSetting(uint16_t yCord);
 void updateSetting(uint16_t cord);
 void checkNew(uint16_t cord);
+void activation(pageID* inp_ptr);
+void displayValue(char *value, uint8_t select, uint8_t size);
 #endif /* MAIN_INCLUDES_LCD_SSD_DRIVER_H_ */

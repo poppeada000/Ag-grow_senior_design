@@ -11,4 +11,5 @@ idf_component_register(SRCS "gatts_server.c"
                             "includes/minmea.h"
                             "includes/minmea.c"
                             "includes/main_page.c"
+                            "includes/cornCount.c"
                     INCLUDE_DIRS ".")

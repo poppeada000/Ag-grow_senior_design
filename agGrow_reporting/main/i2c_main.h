@@ -20,6 +20,7 @@ typedef struct{
 	double temp;
 	float longitude;
 	float latitude;
+	uint8_t active;
 }sensorValues;
 
 void updateEnvSens(sensorValues* ptr_inp, uint8_t select);

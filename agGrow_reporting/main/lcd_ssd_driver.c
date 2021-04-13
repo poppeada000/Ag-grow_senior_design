@@ -577,31 +577,7 @@ void userSelection()
     LCD_DrawFillRectangle(spi, 76, 120, 88, 140, WHITE);
     LCD_DrawFillRectangle(spi, 92, 120, 104, 140, WHITE);
 }
-void settingTemplate()
-{
-    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
-    LCD_DrawFillRectangle(spi, 160, 0, 319, 239, BLACK);
-    LCD_DrawFillRectangle(spi, 0, 0, 159, 239, 0xef36);
 
-    LCD_DrawFillRectangle(spi, 160, 200, 319, 220, RED);
-    LCD_DrawFillRectangle(spi, 160, 220, 319, 239, GREEN);
-    LCD_DrawChar(spi, 232, 2, WHITE, RED, '0', 16, 1);
-    LCD_DrawChar(spi, 232, 22, WHITE, RED, '1', 16, 1);
-    LCD_DrawChar(spi, 232, 42, WHITE, RED, '2', 16, 1);
-    LCD_DrawChar(spi, 232, 62, WHITE, RED, '3', 16, 1);
-    LCD_DrawChar(spi, 232, 82, WHITE, RED, '4', 16, 1);
-    LCD_DrawChar(spi, 232, 102, WHITE, RED, '5', 16, 1);
-    LCD_DrawChar(spi, 232, 122, WHITE, RED, '6', 16, 1);
-    LCD_DrawChar(spi, 232, 142, WHITE, RED, '7', 16, 1);
-    LCD_DrawChar(spi, 232, 162, WHITE, RED, '8', 16, 1);
-    LCD_DrawChar(spi, 232, 182, WHITE, RED, '9', 16, 1);
-    LCD_DrawString(spi, 205, 202, WHITE, GREEN, "Clear", 16, 1);
-    LCD_DrawString(spi, 205, 222, BLACK, GREEN, "Enter", 16, 1);
-    LCD_DrawString(spi, 52, 95, BLACK, GREEN, "USER ID:", 16, 1);
-    LCD_DrawFillRectangle(spi, 60, 120, 72, 140, WHITE);
-    LCD_DrawFillRectangle(spi, 76, 120, 88, 140, WHITE);
-    LCD_DrawFillRectangle(spi, 92, 120, 104, 140, WHITE);
-}
 void keyPadChar(uint16_t cord)
 {
     spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
@@ -804,6 +780,33 @@ void checkNew(uint16_t cord){
 		    userSelection();
 		}
 }
+
+void activation(pageID* inp_ptr){
+	pageID *ptr_temp = &currentPage;
+	inp_ptr->ID0[0] = ptr_temp->ID0[0];
+	inp_ptr->ID0[1] = ptr_temp->ID0[1];
+	inp_ptr->ID0[2] = ptr_temp->ID0[2];
+	inp_ptr->state[2] = ptr_temp->state[2];
+	inp_ptr->state[3] = ptr_temp->state[3];
+	inp_ptr->state[4] = ptr_temp->state[4];
+	inp_ptr->state[5] = ptr_temp->state[5];
+	inp_ptr->state[6] = ptr_temp->state[6];
+	inp_ptr->state[7] = ptr_temp->state[7];
+}
+
+void displayValue(char *value, uint8_t select, uint8_t size)
+{
+	if (currentPage.page == 8){
+	    spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
+		LCD_DrawFillRectangle(spi, 83, 17 + (select*30) , 170, 38 + (select*30), 0xef36);
+		for(int i = 0; i < size; i++){
+
+			LCD_DrawChar(spi, 85 + (i*9), 17 + (select*30) , BLACK, RED, value[i], 16, 1);
+		}
+	}
+	//LCD_DrawFillRectangle(spi, spi, 85 + ((size+1)*9), 17 + (select*30) , 170, 38 + (select*30), 0xef36);
+}
+
 //Initialize the display
 void lcd_init(spi_device_handle_t spi)
 {

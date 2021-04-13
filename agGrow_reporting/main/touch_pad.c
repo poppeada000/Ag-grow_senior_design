@@ -84,7 +84,7 @@ void scanY()
         adc2_get_raw((adc2_channel_t)channel2, ADC_WIDTH_BIT_12, &raw);
         reading += raw;
     }
-    printf("Raw: %d\n", reading/numSamp);
+    //printf("Raw: %d\n", reading/numSamp);
     scanner.y = reading/numSamp;
 }
 
