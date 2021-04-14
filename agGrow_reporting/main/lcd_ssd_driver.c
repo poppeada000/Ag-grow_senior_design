@@ -22,7 +22,7 @@
 #include <math.h>
 //#include "includes/main_page.c"
 
-#define PIN_NUM_MISO 27
+#define PIN_NUM_MISO 29
 #define PIN_NUM_SDI 16//23
 #define PIN_NUM_SCL  19
 #define PIN_NUM_SCS   17//22
@@ -660,10 +660,21 @@ void templateSetting()
     spi_device_handle_t spi = spi_bus_caller.spi_bus_call;
     LCD_DrawFillRectangle(spi, 160, 0, 319, 239, BLACK);
     LCD_DrawFillRectangle(spi, 0, 0, 159, 239, 0xef36);
+
+    LCD_DrawFillRectangle(spi, 245, 192, 260, 200, RED);
+    LCD_DrawFillRectangle(spi, 255, 166, 260, 172, BLUE);
+    LCD_DrawFillRectangle(spi, 245, 136, 260, 142, BLUE);
+    LCD_DrawFillRectangle(spi, 255, 106, 260, 114, BLUE);
+    LCD_DrawFillRectangle(spi, 245, 76, 260, 82, BLUE);
+    LCD_DrawFillRectangle(spi, 255, 46, 260, 54, BLUE);
+    LCD_DrawFillRectangle(spi, 245, 20, 260, 28, BLUE);
+
     LCD_DrawFillRectangle(spi, 260, 20, 300, 200, WHITE);
     //LCD_DrawFillRectangle(spi, 260, 140, 300, 148, RED);
     LCD_DrawFillRectangle(spi, 160, 209, 319, 239, GREEN);
     LCD_DrawString(spi, 181, 216, BLACK, GREEN, "Enter", 16, 1);
+
+
 
 	if(currentPage.state[currentPage.page] == 0){
 	    LCD_DrawFillRectangle(spi, 260, 192, 300, 200, RED);
@@ -680,37 +691,37 @@ void templateSetting()
 	}else if(currentPage.state[currentPage.page] == 6){
 	    LCD_DrawFillRectangle(spi, 260, 20, 300, 28, RED);
 	}
-
     if(currentPage.page == 2){
     	    LCD_DrawString(spi, 40, 95, BLACK, GREEN, "CORN COUNT", 16, 1);
-    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "200 Hz->", 16, 1);
-    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "100 Hz->", 16, 1);
-    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "50 Hz->", 16, 1);
-    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Hz->", 16, 1);
+    	    LCD_DrawString(spi, 173, 16, WHITE, GREEN, "200 Hz-->", 16, 1);
+    	    LCD_DrawString(spi, 173, 76, WHITE, GREEN, "100 Hz-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "50 Hz-->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Hz-->", 16, 1);
     }else if(currentPage.page == 3){
     		LCD_DrawString(spi, 12, 95, BLACK, GREEN, "Relative Humidity", 16, 1);
-    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.-->", 16, 1);
     }else if(currentPage.page ==4){
     		LCD_DrawString(spi, 4, 95, BLACK, GREEN, "Ambient Temperature", 16, 1);
-    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 192, WHITE, GREEN, "0 Sec.-->", 16, 1);
     }else if(currentPage.page == 5){
     		LCD_DrawString(spi, 36, 95, BLACK, GREEN, "Illuminance", 16, 1);
-    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.-->", 16, 1);
     }else{
     		LCD_DrawString(spi, 70, 95, BLACK, GREEN, "GPS", 16, 1);
-    	    LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.->", 16, 1);
-    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.->", 16, 1);
+    		LCD_DrawString(spi, 181, 16, WHITE, GREEN, "30 Sec.-->", 16, 1);
+    		LCD_DrawString(spi, 181, 76, WHITE, GREEN, "20 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 181, 136, WHITE, GREEN, "10 Sec.-->", 16, 1);
+    	    LCD_DrawString(spi, 185, 192, WHITE, GREEN, "0 Sec.-->", 16, 1);
+
     }
 
 }
@@ -725,6 +736,7 @@ void updateSetting(uint16_t cord)
 		Main_menu();
 	}else if(cord > 860 && cord < 3200 ){
 	    LCD_DrawFillRectangle(spi, 260, 20, 300, 200, WHITE);
+
 		if(cord > 860 && cord < 1055 ){
 		    LCD_DrawFillRectangle(spi, 260, 192, 300, 200, RED);
 		    currentPage.state[currentPage.page] = 0;

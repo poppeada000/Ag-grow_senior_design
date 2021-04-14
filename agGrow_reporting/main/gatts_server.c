@@ -385,34 +385,35 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[11] = ptr_temp->byte11;
             rsp.attr_value.value[12] = readA.header;
     	}else{
-            rsp.attr_value.value[0] = 0x0;
-            rsp.attr_value.value[1] = 0x0;
-            rsp.attr_value.value[2] = 0x0;
-            rsp.attr_value.value[3] = 0x0;
-            rsp.attr_value.value[4] = 0x0;
-            rsp.attr_value.value[5] = 0x0;
-            rsp.attr_value.value[6] = 0x0;
-            rsp.attr_value.value[7] = 0x0;
-            rsp.attr_value.value[8] = 0x0;
-            rsp.attr_value.value[9] = 0x0;
-            rsp.attr_value.value[10] = 0x0;
-            rsp.attr_value.value[11] = 0x0;
-            rsp.attr_value.value[12] = 0x0;
+        	ReportData *readingA = &readA;
+            readingA->header = 0x01;
+            readingA->byte0 = 0xFF;
+            readingA->byte1 = 0xFF;
+            readingA->byte2 = 0xFF;
+            readingA->byte3 = 0xFF;
+            readingA->byte4 = 0xFF;
+            readingA->byte5 = 0xFF;
+            readingA->byte6 = 0xFF;
+            readingA->byte7 = 0xFF;
+            readingA->byte8 = 0xFF;
+            readingA->byte9 = 0xFF;
+
+            rsp.attr_value.value[0] = ptr_temp->byte0;
+            rsp.attr_value.value[1] = ptr_temp->byte1;
+            rsp.attr_value.value[2] = ptr_temp->byte2;
+            rsp.attr_value.value[3] = ptr_temp->byte3;
+            rsp.attr_value.value[4] = ptr_temp->byte4;
+            rsp.attr_value.value[5] = ptr_temp->byte5;
+            rsp.attr_value.value[6] = ptr_temp->byte6;
+            rsp.attr_value.value[7] = ptr_temp->byte7;
+            rsp.attr_value.value[8] = ptr_temp->byte8;
+            rsp.attr_value.value[9] = ptr_temp->byte9;
+            rsp.attr_value.value[10] = ptr_temp->byte10;
+            rsp.attr_value.value[11] = ptr_temp->byte11;
+            rsp.attr_value.value[12] = readA.header;
+
     	}
-    	ReportData *readingA = &readA;
-        readingA->header = 0x01;
-        readingA->byte0 = 0xFF;
-        readingA->byte1 = 0xFF;
-        readingA->byte2 = 0xFF;
-        readingA->byte3 = 0xFF;
-        readingA->byte4 = 0xFF;
-        readingA->byte5 = 0xFF;
-        readingA->byte6 = 0xFF;
-        readingA->byte7 = 0xFF;
-        readingA->byte8 = 0xFF;
-        readingA->byte9 = 0xFF;
-        readingA->byte10 = 0xFF;
-        readingA->byte11 = 0xFF;
+
 		readA.header = 0x1;
         printf("Read event set to current: %d \n", rsp.attr_value.value[0]);
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
@@ -599,34 +600,34 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[11] = ptr_temp->byte11;
             rsp.attr_value.value[12] = readB.header;
     	}else{
-            rsp.attr_value.value[0] = 0x0;
-            rsp.attr_value.value[1] = 0x0;
-            rsp.attr_value.value[2] = 0x0;
-            rsp.attr_value.value[3] = 0x0;
-            rsp.attr_value.value[4] = 0x0;
-            rsp.attr_value.value[5] = 0x0;
-            rsp.attr_value.value[6] = 0x0;
-            rsp.attr_value.value[7] = 0x0;
-            rsp.attr_value.value[8] = 0x0;
-            rsp.attr_value.value[9] = 0x0;
-            rsp.attr_value.value[10] = 0x0;
-            rsp.attr_value.value[11] = 0x0;
-            rsp.attr_value.value[12] = 0x0;
-    	}
+            ReportData *readingB = &readB;
+            readingB->byte0 = 0xFF;
+            readingB->byte1 = 0xFF;
+            readingB->byte2 = 0xFF;
+            readingB->byte3 = 0xFF;
+            readingB->byte4 = 0xFF;
+            readingB->byte5 = 0xFF;
+            readingB->byte6 = 0xFF;
+            readingB->byte7 = 0xFF;
+            readingB->byte8 = 0xFF;
+            readingB->byte9 = 0xFF;
+            readingB->byte10 = 0xFF;
+            readingB->byte11 = 0xFF;
+            rsp.attr_value.value[0] = ptr_temp->byte0;
+            rsp.attr_value.value[1] = ptr_temp->byte1;
+            rsp.attr_value.value[2] = ptr_temp->byte2;
+            rsp.attr_value.value[3] = ptr_temp->byte3;
+            rsp.attr_value.value[4] = ptr_temp->byte4;
+            rsp.attr_value.value[5] = ptr_temp->byte5;
+            rsp.attr_value.value[6] = ptr_temp->byte6;
+            rsp.attr_value.value[7] = ptr_temp->byte7;
+            rsp.attr_value.value[8] = ptr_temp->byte8;
+            rsp.attr_value.value[9] = ptr_temp->byte9;
+            rsp.attr_value.value[10] = ptr_temp->byte10;
+            rsp.attr_value.value[11] = ptr_temp->byte11;
+            rsp.attr_value.value[12] = readB.header;
 
-        ReportData *readingB = &readB;
-        readingB->byte0 = 0xFF;
-        readingB->byte1 = 0xFF;
-        readingB->byte2 = 0xFF;
-        readingB->byte3 = 0xFF;
-        readingB->byte4 = 0xFF;
-        readingB->byte5 = 0xFF;
-        readingB->byte6 = 0xFF;
-        readingB->byte7 = 0xFF;
-        readingB->byte8 = 0xFF;
-        readingB->byte9 = 0xFF;
-        readingB->byte10 = 0xFF;
-        readingB->byte11 = 0xFF;
+    	}
 
         readB.header = 0x1;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,

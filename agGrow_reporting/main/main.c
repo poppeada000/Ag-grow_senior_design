@@ -40,10 +40,10 @@ static void lidar_timer_callback(void* arg)
 	sprintf(value, "%d    ", count.count);
 	if(count.count != count.countprev){
 		displayValue(value, 0, 5);
-		 printf("Current Count: %d\n", count.count);
-		 ptr_temp->byte0 = (uint8_t)(count.count>>8) & 0x00FF;
-		 ptr_temp->byte1 = (uint8_t)(count.count & 0x00FF);
-		 setDataForRead(&sendA, 0x01, 0);
+		printf("Current Count: %d\n", count.count);
+		ptr_temp->byte0 = (uint8_t)(count.count>>8) & 0x00FF;
+		ptr_temp->byte1 = (uint8_t)(count.count & 0x00FF);
+		setDataForRead(&sendA, 0x01, 0);
 	}
     count.countprev = count.count;
 
@@ -97,7 +97,7 @@ static void tempSensors_timer_callback(void* arg)
 	char value[10] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
 	sprintf(value, "%.2f   ", temp);
 	displayValue(value, 2, 4);
-	uint32_t tempi = (uint32_t) temp;
+	uint32_t tempi = (uint32_t)(*(uint32_t*)& temp);
 	ptr_temp->byte4 = (uint8_t)(tempi>>24);
 	ptr_temp->byte5 = (uint8_t)(tempi>>16) & 0x00FF;
 	ptr_temp->byte6 = (uint8_t)(tempi>>8) & 0x00FF;
@@ -144,8 +144,8 @@ static void gpsSensors_timer_callback(void* arg)
 	ptr_temp->byte7 = (uint8_t)(longi>>16) & 0x00FF;
 	ptr_temp->byte8 = (uint8_t)(longi>>8) & 0x00FF;
 	ptr_temp->byte9 = (uint8_t)(longi) & 0x00FF;
-	float battery = oneWireMain();
-	updateBattery(battery);
+	//float battery = ReadAtoD();
+	//updateBattery(battery);
 	setDataForRead(&sendA, 0x01, 1);
 	printf("GPS Location: Latitude %f, Longitude %f\n", ptr_temp_sens->latitude, ptr_temp_sens->longitude);
 }
@@ -160,7 +160,6 @@ void app_main(void)
     esp_timer_handle_t touchSensor_timer;
     ESP_ERROR_CHECK(esp_timer_create(&touchSensor_timer_args, &touchSensor_timer));
 
-
     activeSensors.active = 0;
     //Ready the Gatt Server for read event
     gatts_server_init();
@@ -169,9 +168,13 @@ void app_main(void)
     i2c_main_init();
     activeSensors.lidarOne = vl53l0x_config(1, 25, 26, -1, 0x29, 1);
 	vl53l0x_init(activeSensors.lidarOne);
-
+	//oneWireMain();
 	ESP_ERROR_CHECK(esp_timer_start_periodic(touchSensor_timer, 200000));
+	//activateSensors();
+	count.count = 0;
+	count.countprev = 0;
 	begin_displaying();
+
 	//Start the 50Hz Lidar polling200000
 	//ESP_ERROR_CHECK(esp_timer_start_periodic(lidar_timer, 20000));
 	//ESP_ERROR_CHECK(esp_timer_start_periodic(humSensors_timer, 3000000));
@@ -231,7 +234,7 @@ void activateSensors(){
 		timings[2] = 10000;
 	}else if(displayState.state[2] == 5){
 		timings[2] = 6000;
-	}else{
+	}else if (displayState.state[2] == 6){
 		timings[2] = 5000;
 	}
 	for(int i = 3; i < 7; i++)
@@ -253,10 +256,10 @@ void activateSensors(){
 		}
 	}
 	ESP_ERROR_CHECK(esp_timer_start_periodic(lidar_timer, timings[2]));
-	//ESP_ERROR_CHECK(esp_timer_start_periodic(humSensors_timer, timings[3]));
-	//ESP_ERROR_CHECK(esp_timer_start_periodic(tempSensors_timer, timings[4]));
-	//ESP_ERROR_CHECK(esp_timer_start_periodic(luxSensors_timer, timings[5]));
-	//ESP_ERROR_CHECK(esp_timer_start_periodic(gpsSensors_timer, timings[6]));
+	ESP_ERROR_CHECK(esp_timer_start_periodic(humSensors_timer, timings[3]));
+	ESP_ERROR_CHECK(esp_timer_start_periodic(tempSensors_timer, timings[4]));
+	ESP_ERROR_CHECK(esp_timer_start_periodic(luxSensors_timer, timings[5]));
+	ESP_ERROR_CHECK(esp_timer_start_periodic(gpsSensors_timer, timings[6]));
 }
 
 

@@ -11,7 +11,7 @@
 #include "driver/gpio.h"
 
 #define MAX_DEVICES          (1)
-
+OneWireBus owb;
 /**
  * Sets the DS2438 to read Vad or Vdd
  *
@@ -80,50 +80,51 @@ void SetupAtoD(const OneWireBus * owb)
  *
  * @return the floating point value of Vad or Vdd
  */
-float ReadAtoD(const OneWireBus * owb)
+float ReadAtoD()
 {
+	const OneWireBus * owb2 = &owb;
 	bool reset_present;
 
 	// reset and presence pulse
-	owb_reset(owb, &reset_present);
+	owb_reset(owb2, &reset_present);
 
 	// skip ROM
-	owb_write_byte(owb, 0xCC);
+	owb_write_byte(owb2, 0xCC);
 
 	// issue convert voltage vommand, read slots (B4h)
-	owb_write_byte(owb, 0xB4);
+	owb_write_byte(owb2, 0xB4);
 	uint8_t * busy_byte = 0;
 	do
 	{
-		owb_read_byte(owb, busy_byte);
+		owb_read_byte(owb2, busy_byte);
 	}while(busy_byte==0);
 
 	// reset and presence pulse
-	owb_reset(owb, &reset_present);
+	owb_reset(owb2, &reset_present);
 
 	// skip ROM
-	owb_write_byte(owb, 0xCC);
+	owb_write_byte(owb2, 0xCC);
 
 	// issue recall memory page 00h command (B8h00h)
-	owb_write_byte(owb, 0xB8);
-	owb_write_byte(owb, 0x00);
+	owb_write_byte(owb2, 0xB8);
+	owb_write_byte(owb2, 0x00);
 
 	// reset and presence pulse
-	owb_reset(owb, &reset_present);
+	owb_reset(owb2, &reset_present);
 
 	// skip ROM
-	owb_write_byte(owb, 0xCC);
+	owb_write_byte(owb2, 0xCC);
 
 	// Issue Read SP 00h command (BEh00h)
-	owb_write_byte(owb, 0xBE);
-	owb_write_byte(owb, 0x00);
+	owb_write_byte(owb2, 0xBE);
+	owb_write_byte(owb2, 0x00);
 
 	// Read scratchpad data and CRC containing 9 data bytes
 	uint8_t * device_data = (uint8_t *)malloc(9*sizeof(u_int8_t));
-	owb_read_bytes(owb, device_data, 9);
+	owb_read_bytes(owb2, device_data, 9);
 
 	// reset and presence pulse, done
-	owb_reset(owb, &reset_present);
+	owb_reset(owb2, &reset_present);
 
 
 	// extract voltage data from page and convert to float
@@ -133,17 +134,17 @@ float ReadAtoD(const OneWireBus * owb)
 }
 
 
-float oneWireMain()
+void oneWireMain()
 {
 	// Startup delay to allow time for bus capacitance to charge
     //vTaskDelay(2000 / portTICK_RATE_MS);
 
     //initialize one-wire drivers
     // Create a 1-Wire bus, using the RMT timeslot driver
-    OneWireBus * owb;
+    OneWireBus * owb2 = &owb;
     owb_rmt_driver_info rmt_driver_info;
-    owb = owb_rmt_initialize(&rmt_driver_info, 13, RMT_CHANNEL_1, RMT_CHANNEL_0);
-    owb_use_crc(owb, true);  // enable CRC check for ROM code
+    owb2 = owb_rmt_initialize(&rmt_driver_info, 13, RMT_CHANNEL_1, RMT_CHANNEL_0);
+    owb_use_crc(owb2, true);  // enable CRC check for ROM code
 
     // Find all connected devices
     printf("Find devices:\n");
@@ -151,7 +152,7 @@ float oneWireMain()
     int num_devices = 0;
     OneWireBus_SearchState search_state = {0};
     bool found = false;
-    owb_search_first(owb, &search_state, &found);
+    owb_search_first(owb2, &search_state, &found);
     while (found)
     {
         char rom_code_s[17];
@@ -159,7 +160,7 @@ float oneWireMain()
         printf("  %d : %s\n", num_devices, rom_code_s);
         device_rom_codes[num_devices] = search_state.rom_code;
         ++num_devices;
-        owb_search_next(owb, &search_state, &found);
+        owb_search_next(owb2, &search_state, &found);
     }
     printf("Found %d device%s\n", num_devices, num_devices == 1 ? "" : "s");
 
@@ -171,7 +172,7 @@ float oneWireMain()
     {
         // For a single device only:
         OneWireBus_ROMCode rom_code;
-        owb_status status = owb_read_rom(owb, &rom_code);
+        owb_status status = owb_read_rom(owb2, &rom_code);
         if (status == OWB_STATUS_OK)
         {
             char rom_code_s[OWB_ROM_CODE_STRING_LENGTH];
@@ -185,10 +186,9 @@ float oneWireMain()
     }
 
     //setup configuration/status register of DS2438
-    SetupAtoD(owb);
+    SetupAtoD(owb2);
 
     //read the voltage data
-    float Vdd = ReadAtoD(owb);
-    printf("Battery voltage is %f V", Vdd);
-    return Vdd;
+    //float Vdd = ReadAtoD();
+    //printf("Battery voltage is %f V", Vdd);
 }

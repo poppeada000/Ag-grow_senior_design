@@ -11,7 +11,7 @@
 
 
 void SetupAtoD(const OneWireBus * owb);
-float ReadAtoD(const OneWireBus * owb);
-float oneWireMain();
+float ReadAtoD();
+void oneWireMain();
 
 #endif /* MAIN_INCLUDES_DS2438_H_ */
