@@ -71,7 +71,13 @@ static uint8_t char1_str[] = "test";
 uint8_t datasend[] = "This is the data being sent";
 static ReportData readA;
 static ReportData readB;
+uint8_t bufferLocA;
+uint8_t prevbufferLocA;
+uint8_t bufferLocB;
+uint8_t prevbufferLocB;
 
+
+static ReportDataBuffer reportBuffer;
 static esp_gatt_char_prop_t a_property = 0;
 static esp_gatt_char_prop_t b_property = 0;
 
@@ -358,19 +364,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = 13;
-        //rsp.attr_value.value = charsend;
-/*        for (uint8_t i=0; i<rsp.attr_value.len; i++)
-        {
-        	//uint8_t x = i;
-        	rsp.attr_value.value[i] = datasend[i];
-        	//datasend[0] = "0x2";
-        }
-        */
-//        /rsp.attr_value.len = 2;
     	ReportData *ptr_temp = &readA;
-
-
-    	if(readB.header == 0){
+    	if(readA.header == 0 && bufferLocA == prevbufferLocA){
         	rsp.attr_value.value[0] = ptr_temp->byte0;
             rsp.attr_value.value[1] = ptr_temp->byte1;
             rsp.attr_value.value[2] = ptr_temp->byte2;
@@ -384,6 +379,23 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[10] = ptr_temp->byte10;
             rsp.attr_value.value[11] = ptr_temp->byte11;
             rsp.attr_value.value[12] = readA.header;
+            readA.header = 0x1;
+    	}else if(readA.header == 0 && bufferLocA != prevbufferLocA){
+    		ReportData *ptr_temp = &reportBuffer.buffer[bufferLocA];
+        	rsp.attr_value.value[0] = ptr_temp->byte0;
+            rsp.attr_value.value[1] = ptr_temp->byte1;
+            rsp.attr_value.value[2] = ptr_temp->byte2;
+            rsp.attr_value.value[3] = ptr_temp->byte3;
+            rsp.attr_value.value[4] = ptr_temp->byte4;
+            rsp.attr_value.value[5] = ptr_temp->byte5;
+            rsp.attr_value.value[6] = ptr_temp->byte6;
+            rsp.attr_value.value[7] = ptr_temp->byte7;
+            rsp.attr_value.value[8] = ptr_temp->byte8;
+            rsp.attr_value.value[9] = ptr_temp->byte9;
+            rsp.attr_value.value[10] = ptr_temp->byte10;
+            rsp.attr_value.value[11] = ptr_temp->byte11;
+            rsp.attr_value.value[12] = readA.header;
+            prevbufferLocA += 2;
     	}else{
         	ReportData *readingA = &readA;
             readingA->header = 0x01;
@@ -397,7 +409,6 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             readingA->byte7 = 0xFF;
             readingA->byte8 = 0xFF;
             readingA->byte9 = 0xFF;
-
             rsp.attr_value.value[0] = ptr_temp->byte0;
             rsp.attr_value.value[1] = ptr_temp->byte1;
             rsp.attr_value.value[2] = ptr_temp->byte2;
@@ -411,10 +422,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[10] = ptr_temp->byte10;
             rsp.attr_value.value[11] = ptr_temp->byte11;
             rsp.attr_value.value[12] = readA.header;
-
+            readA.header = 0x1;
     	}
-
-		readA.header = 0x1;
         printf("Read event set to current: %d \n", rsp.attr_value.value[0]);
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
@@ -585,7 +594,7 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = 13;
     	ReportData *ptr_temp = &readB;
-    	if(readB.header == 0){
+    	if(readB.header == 0 && bufferLocB != prevbufferLocB){
             rsp.attr_value.value[0] = ptr_temp->byte0;
             rsp.attr_value.value[1] = ptr_temp->byte1;
             rsp.attr_value.value[2] = ptr_temp->byte2;
@@ -599,6 +608,23 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[10] = ptr_temp->byte10;
             rsp.attr_value.value[11] = ptr_temp->byte11;
             rsp.attr_value.value[12] = readB.header;
+            readB.header = 0x1;
+    	}else if(readB.header == 0 && bufferLocB != prevbufferLocB){
+    		ReportData *ptr_temp = &reportBuffer.buffer[bufferLocB];
+        	rsp.attr_value.value[0] = ptr_temp->byte0;
+            rsp.attr_value.value[1] = ptr_temp->byte1;
+            rsp.attr_value.value[2] = ptr_temp->byte2;
+            rsp.attr_value.value[3] = ptr_temp->byte3;
+            rsp.attr_value.value[4] = ptr_temp->byte4;
+            rsp.attr_value.value[5] = ptr_temp->byte5;
+            rsp.attr_value.value[6] = ptr_temp->byte6;
+            rsp.attr_value.value[7] = ptr_temp->byte7;
+            rsp.attr_value.value[8] = ptr_temp->byte8;
+            rsp.attr_value.value[9] = ptr_temp->byte9;
+            rsp.attr_value.value[10] = ptr_temp->byte10;
+            rsp.attr_value.value[11] = ptr_temp->byte11;
+            rsp.attr_value.value[12] = readB.header;
+            prevbufferLocB += 2;
     	}else{
             ReportData *readingB = &readB;
             readingB->byte0 = 0xFF;
@@ -626,10 +652,8 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             rsp.attr_value.value[10] = ptr_temp->byte10;
             rsp.attr_value.value[11] = ptr_temp->byte11;
             rsp.attr_value.value[12] = readB.header;
-
+            readB.header = 0x1;
     	}
-
-        readB.header = 0x1;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
         break;
@@ -785,49 +809,103 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 void setDataForRead(ReportData* ptr_inp, uint8_t channel, uint8_t update){
 	if(channel == 0x1)
 	{
-		ReportData *ptr_temp = &readA;
-		readA.header = 0x0;
-		if(update == 0){
-			ptr_temp->byte0 = ptr_inp->byte0;
-			ptr_temp->byte1 = ptr_inp->byte1;
-		}else if(update == 1){
-			ptr_temp->byte2 = ptr_inp->byte2;
-			ptr_temp->byte3 = ptr_inp->byte3;
-			ptr_temp->byte4 = ptr_inp->byte4;
-			ptr_temp->byte5 = ptr_inp->byte5;
-			ptr_temp->byte6 = ptr_inp->byte6;
-			ptr_temp->byte7 = ptr_inp->byte7;
-			ptr_temp->byte8 = ptr_inp->byte8;
-			ptr_temp->byte9 = ptr_inp->byte9;
-		}
-		ptr_temp->byte10 = ptr_inp->byte10;
-		ptr_temp->byte11 = ptr_inp->byte11;
-	}else
-	{
-		ReportData *ptr_temp = &readB;
-		readB.header = 0x0;
-		if(update == 0){
-			ptr_temp->byte0 = ptr_inp->byte0;
-			ptr_temp->byte1 = ptr_inp->byte1;
-			ptr_temp->byte2 = ptr_inp->byte2;
-			ptr_temp->byte3 = ptr_inp->byte3;
-		}else if(update == 1){
-			ptr_temp->byte4 = ptr_inp->byte4;
-			ptr_temp->byte5 = ptr_inp->byte5;
-			ptr_temp->byte6 = ptr_inp->byte6;
-			ptr_temp->byte7 = ptr_inp->byte7;
-		}else if(update == 2){
-			ptr_temp->byte8 = ptr_inp->byte8;
-			ptr_temp->byte9 = ptr_inp->byte9;
+		if(readA.header == 0x0 || prevbufferLocA != bufferLocA){
+			ReportData *ptr_temp = &reportBuffer.buffer[bufferLocA];
+			if(update == 0){
+				ptr_temp->byte0 = ptr_inp->byte0;
+				ptr_temp->byte1 = ptr_inp->byte1;
+			}else if(update == 1){
+				ptr_temp->byte2 = ptr_inp->byte2;
+				ptr_temp->byte3 = ptr_inp->byte3;
+				ptr_temp->byte4 = ptr_inp->byte4;
+				ptr_temp->byte5 = ptr_inp->byte5;
+				ptr_temp->byte6 = ptr_inp->byte6;
+				ptr_temp->byte7 = ptr_inp->byte7;
+				ptr_temp->byte8 = ptr_inp->byte8;
+				ptr_temp->byte9 = ptr_inp->byte9;
+			}
+			if(bufferLocA + 2 > 85){
+				bufferLocA = 0;
+			}
+			else{
+				bufferLocA += 2;
+			}
+		}else
+		{
+			ReportData *ptr_temp = &readA;
+			readA.header = 0x0;
+			if(update == 0){
+				ptr_temp->byte0 = ptr_inp->byte0;
+				ptr_temp->byte1 = ptr_inp->byte1;
+			}else if(update == 1){
+				ptr_temp->byte2 = ptr_inp->byte2;
+				ptr_temp->byte3 = ptr_inp->byte3;
+				ptr_temp->byte4 = ptr_inp->byte4;
+				ptr_temp->byte5 = ptr_inp->byte5;
+				ptr_temp->byte6 = ptr_inp->byte6;
+				ptr_temp->byte7 = ptr_inp->byte7;
+				ptr_temp->byte8 = ptr_inp->byte8;
+				ptr_temp->byte9 = ptr_inp->byte9;
+			}
 			ptr_temp->byte10 = ptr_inp->byte10;
 			ptr_temp->byte11 = ptr_inp->byte11;
 		}
-	}
+	}else
+	{
+		if(readB.header == 0x0 || prevbufferLocB != bufferLocB){
+			ReportData *ptr_temp = &reportBuffer.buffer[bufferLocB];
 
+			if(update == 0){
+				ptr_temp->byte0 = ptr_inp->byte0;
+				ptr_temp->byte1 = ptr_inp->byte1;
+				ptr_temp->byte2 = ptr_inp->byte2;
+				ptr_temp->byte3 = ptr_inp->byte3;
+			}else if(update == 1){
+				ptr_temp->byte4 = ptr_inp->byte4;
+				ptr_temp->byte5 = ptr_inp->byte5;
+				ptr_temp->byte6 = ptr_inp->byte6;
+				ptr_temp->byte7 = ptr_inp->byte7;
+			}else if(update == 2){
+				ptr_temp->byte8 = ptr_inp->byte8;
+				ptr_temp->byte9 = ptr_inp->byte9;
+				ptr_temp->byte10 = ptr_inp->byte10;
+				ptr_temp->byte11 = ptr_inp->byte11;
+			}
+			if(bufferLocA + 2 > 85){
+				bufferLocA = 1;
+			}else{
+				bufferLocB += 2;
+			}
+		}else
+		{
+			ReportData *ptr_temp = &readB;
+			readB.header = 0x0;
+			if(update == 0){
+				ptr_temp->byte0 = ptr_inp->byte0;
+				ptr_temp->byte1 = ptr_inp->byte1;
+				ptr_temp->byte2 = ptr_inp->byte2;
+				ptr_temp->byte3 = ptr_inp->byte3;
+			}else if(update == 1){
+				ptr_temp->byte4 = ptr_inp->byte4;
+				ptr_temp->byte5 = ptr_inp->byte5;
+				ptr_temp->byte6 = ptr_inp->byte6;
+				ptr_temp->byte7 = ptr_inp->byte7;
+			}else if(update == 2){
+				ptr_temp->byte8 = ptr_inp->byte8;
+				ptr_temp->byte9 = ptr_inp->byte9;
+				ptr_temp->byte10 = ptr_inp->byte10;
+				ptr_temp->byte11 = ptr_inp->byte11;
+			}
+		}
+	}
 }
 
 void gatts_server_init()
 {
+	bufferLocA = 0;
+	prevbufferLocA = 0;
+	bufferLocB = 1;
+	prevbufferLocB = 1;
     esp_err_t ret;
     ReportData *readingA = &readA;
     readingA->header = 0x01;

@@ -35,7 +35,7 @@ static void lidar_timer_callback(void* arg)
 	int distance;
     distance = vl53l0x_readRangeSingleMillimeters(activeSensors.lidarOne);
     ReportData *ptr_temp = &sendA;
-    corn_counter(&count,distance, 200, 400);
+    corn_counter(&count,distance, 300, 600);
 	char value[12] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
 	sprintf(value, "%d    ", count.count);
 	if(count.count != count.countprev){
@@ -131,9 +131,9 @@ static void gpsSensors_timer_callback(void* arg)
 	uint32_t longi = (uint32_t)(*(uint32_t*)&(ptr_temp_sens->longitude));
 	uint32_t lati = (uint32_t)(*(uint32_t*)&(ptr_temp_sens->latitude));
 	char value[21] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-	sprintf(value, "%.5f", ptr_temp_sens->longitude);
+	sprintf(value, "%.5f          ", ptr_temp_sens->latitude);
 	char value2[21] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-	sprintf(value2, "%.5f         ", ptr_temp_sens->latitude);
+	sprintf(value2, "%.5f          ", ptr_temp_sens->longitude);
 	displayValue(value, 4, 10);
 	displayValue(value2, 5, 10);
 	ptr_temp->byte2 = (uint8_t)(lati>>24);
@@ -242,17 +242,17 @@ void activateSensors(){
 		if(displayState.state[i] == 0){
 			timings[i] = 0;
 		}else if(displayState.state[i] == 1){
-			timings[i] = 5000000;
+			timings[i] = 1000000;
 		}else if(displayState.state[i] == 2){
-			timings[i] = 10000000;
+			timings[i] = 2000000;
 		}else if(displayState.state[i] == 3){
-			timings[i] = 15000000;
+			timings[i] = 3000000;
 		}else if(displayState.state[i] == 4){
-			timings[i] = 20000000;
+			timings[i] = 4000000;
 		}else if(displayState.state[i] == 5){
-			timings[i] = 25000000;
-		}else{
-			timings[i] = 30000000;
+			timings[i] = 5000000;
+		}else if(displayState.state[i] == 6){
+			timings[i] = 6000000;
 		}
 	}
 	ESP_ERROR_CHECK(esp_timer_start_periodic(lidar_timer, timings[2]));

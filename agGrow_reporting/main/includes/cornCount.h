@@ -10,8 +10,8 @@
 
 
 typedef struct {
-	int count;
-	int countprev;
+	uint16_t count;
+	uint16_t countprev;
 }corn;
 
 

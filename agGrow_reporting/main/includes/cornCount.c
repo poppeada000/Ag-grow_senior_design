@@ -8,7 +8,7 @@
 #include "cornCount.h"
 
 corn corn_data;
-int reset;
+uint16_t reset;
 
 
 void corn_counter(corn* ptr_data, int dist, int lim1, int lim2)
@@ -26,7 +26,7 @@ void corn_counter(corn* ptr_data, int dist, int lim1, int lim2)
 		//printf("%d",ptr_temp->count);
 		reset = 0;
 	}
-	printf("%d", reset);
+	//printf("%d", reset);
 
 	ptr_data->count = ptr_temp->count;
 }

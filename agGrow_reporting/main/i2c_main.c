@@ -149,9 +149,9 @@ static esp_err_t i2c_master_init()
     int i2c_master_port = 1;//I2C_MASTER_NUM;
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = 25;
+    conf.sda_io_num = 26;
     conf.sda_pullup_en = 0;
-    conf.scl_io_num = 26;
+    conf.scl_io_num = 27;
     conf.scl_pullup_en = 0;
     conf.master.clk_speed = 400000;
     i2c_param_config(i2c_master_port, &conf);

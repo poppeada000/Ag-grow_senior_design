@@ -32,23 +32,10 @@ typedef struct{
 	uint8_t byte11;
 	uint8_t byte12;
 }ReportData;
-
 typedef struct{
-	uint8_t header;
-	uint8_t byte0;
-	uint8_t byte1;
-	uint8_t byte2;
-	uint8_t byte3;
-	uint8_t byte4;
-	uint8_t byte5;
-	uint8_t byte6;
-	uint8_t byte7;
-	uint8_t byte8;
-	uint8_t byte9;
-	uint8_t byte10;
-	uint8_t byte11;
-	uint8_t byte12;
+	ReportData buffer[86];
 }ReportDataBuffer;
+
 
 void gatts_server_init();
 void setDataForRead(ReportData* ptr_inp, uint8_t channel, uint8_t update);
